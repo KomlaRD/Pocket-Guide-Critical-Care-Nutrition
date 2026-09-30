@@ -1,0 +1,5 @@
+source_id,product_id,source_type,source_title,verification_status,notes
+SRC_DEMO_1,DEMO_EN_15,DEMO,Pocket Guide demonstration dataset,DEMO_ONLY,Not for clinical use
+SRC_DEMO_2,DEMO_EN_HP,DEMO,Pocket Guide demonstration dataset,DEMO_ONLY,Not for clinical use
+SRC_DEMO_3,DEMO_ONS,DEMO,Pocket Guide demonstration dataset,DEMO_ONLY,Not for clinical use
+SRC_DEMO_4,DEMO_PROTEIN,DEMO,Pocket Guide demonstration dataset,DEMO_ONLY,Not for clinical use

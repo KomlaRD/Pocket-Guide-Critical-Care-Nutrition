@@ -1,0 +1,15 @@
+recommendation_id,guideline_code,recommendation_code,clinical_domain,topic,summary,evidence_grade,recommendation_strength,consensus_percent,evidence_status
+ESPEN23_R17,ESPEN_ICU_2023,R17,ENERGY,EARLY_ENERGY,Hypocaloric nutrition not exceeding 70% of energy expenditure should be used in the early acute phase.,B,,100,SUPPORTED_RECOMMENDATION
+ESPEN23_R18,ESPEN_ICU_2023,R18,ENERGY,POST_DAY3_ENERGY,After day 3 energy delivery can be increased to 80-100% of measured energy expenditure.,0,,95,SUPPORTED_RECOMMENDATION
+ESPEN23_R22,ESPEN_ICU_2023,R22,PROTEIN,PROTEIN_DOSE,Protein equivalents of 1.3 g/kg/day can be delivered progressively during critical illness.,0,,92,SUPPORTED_RECOMMENDATION
+ESPEN23_R23,ESPEN_ICU_2023,R23,CARBOHYDRATE,CARBOHYDRATE_LIMIT,Glucose from PN or carbohydrate from EN should not exceed 5 mg/kg/min.,GPP,,100,SUPPORTED_RECOMMENDATION
+ESPEN23_R25,ESPEN_ICU_2023,R25,LIPID,IV_LIPID_LIMIT,Intravenous lipid including non-nutritional lipid sources should not exceed 1.5 g/kg/day and should be adapted to tolerance.,GPP,,100,SUPPORTED_RECOMMENDATION
+ASPEN22_Q1,ASPEN_ICU_2022,Q1,ENERGY,EARLY_ENERGY,ASPEN suggests 12-25 kcal/kg/day during the first 7-10 ICU days.,Moderate,Weak,,SUPPORTED_RECOMMENDATION
+ASPEN22_Q2,ASPEN_ICU_2022,Q2,PROTEIN,PROTEIN_DOSE,The 2022 evidence was insufficient for a new protein dose recommendation beyond the 2016 suggestion of 1.2-2.0 g/kg/day.,Low,Weak,,LEGACY_GUIDANCE_RETAINED
+ASPEN22_Q3,ASPEN_ICU_2022,Q3,ROUTE,EN_VS_PN,For adult ICU patients who are candidates for EN either EN or PN is acceptable when similar energy is delivered during the first week.,High,Strong,,NO_DIFFERENCE_DETECTED
+ASPEN22_Q4,ASPEN_ICU_2022,Q4,PARENTERAL_NUTRITION,SUPPLEMENTAL_PN,Routine supplemental PN should not be initiated before ICU day 7 in the population studied.,High,Strong,,SUPPORTED_RECOMMENDATION
+ESPEN23_R4,ESPEN_ICU_2023,R4,ROUTE,EARLY_EN,When oral intake is not possible ESPEN recommends early enteral nutrition within 48 hours rather than delaying enteral nutrition.,B,,100,SUPPORTED_RECOMMENDATION
+ESPEN23_R38,ESPEN_ICU_2023,R38,SAFETY,DELAY_EN,ESPEN identifies specific hemodynamic gastrointestinal and respiratory conditions in which enteral nutrition should be delayed or reassessed.,B,,100,SUPPORTED_RECOMMENDATION
+ESPEN23_R55,ESPEN_ICU_2023,R55,MONITORING,ELECTROLYTES,Potassium magnesium and phosphate should be monitored at least daily during the first week.,GPP,,92,SUPPORTED_RECOMMENDATION
+ESPEN23_R56,ESPEN_ICU_2023,R56,MONITORING,REFEEDING_HYPOPHOSPHATEMIA,Refeeding hypophosphatemia is identified by phosphate below 0.65 mmol/L or a fall greater than 0.16 mmol/L and warrants intensified electrolyte monitoring.,GPP,,100,SUPPORTED_RECOMMENDATION
+ESPEN23_R57,ESPEN_ICU_2023,R57,ENERGY,REFEEDING_ENERGY,When refeeding hypophosphatemia develops energy delivery should be temporarily restricted and then progressively increased under clinical management.,B,,100,SUPPORTED_RECOMMENDATION

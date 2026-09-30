@@ -1,0 +1,5 @@
+preparation_id,product_id,preparation_name,preparation_type,basis_quantity,basis_unit,notes
+PREP_EN_15,DEMO_EN_15,Ready to feed,READY_TO_FEED,100,mL,Demonstration data only
+PREP_EN_HP,DEMO_EN_HP,Ready to feed,READY_TO_FEED,100,mL,Demonstration data only
+PREP_ONS,DEMO_ONS,Ready to drink,READY_TO_FEED,100,mL,Demonstration data only
+PREP_PROTEIN,DEMO_PROTEIN,Powder,POWDER,100,g,Demonstration data only

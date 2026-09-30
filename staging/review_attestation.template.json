@@ -1,0 +1,14 @@
+{
+  "batch_sha256": "REPLACE_WITH_SHA256_FROM_BATCH_DIGEST",
+  "submitted_by": "",
+  "reviewed_by": "",
+  "reviewed_on": "YYYY-MM-DD",
+  "checks": {
+    "source_authenticity": false,
+    "market_and_variant": false,
+    "serving_basis": false,
+    "every_supplied_nutrient": false,
+    "clinical_release_authorized": false
+  },
+  "review_notes": ""
+}

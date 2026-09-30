@@ -1,0 +1,23 @@
+id,name,category,en_1500kcal,pn_home_longterm,clinical_note
+chromium,Chromium,Trace element,35–150 µg/day,10–15 µg/day,Interpret with clinical context; routine status assessment is limited.
+copper,Copper,Trace element,1–3 mg/day,0.3–0.5 mg/day,"Consider deficiency and excess, particularly with prolonged medical nutrition or altered losses."
+fluoride,Fluoride,Trace element,0–3 mg/day,0–1 mg/day,Provision varies; use the guideline and local formulation information.
+iodine,Iodine,Trace element,150–300 µg/day,130 µg/day,Consider thyroid context and iodine exposure when interpreting status.
+iron,Iron,Trace element,18–30 mg/day,1 mg/day,Inflammation substantially complicates interpretation of iron biomarkers.
+manganese,Manganese,Trace element,2–3 mg/day,55 µg/day,Toxicity is an important concern in prolonged PN; interpret whole-blood values and clinical context.
+molybdenum,Molybdenum,Trace element,50–250 µg/day,19–25 µg/day,Deficiency is uncommon; prolonged nutrition support may justify review.
+selenium,Selenium,Trace element,50–150 µg/day,60–100 µg/day,Inflammation can alter circulating selenium; interpret alongside CRP.
+zinc,Zinc,Trace element,10–20 mg/day,3–5 mg/day,"Requirements may increase with substantial gastrointestinal, wound, burn, or other losses."
+vitamin_a,Vitamin A,Fat-soluble vitamin,900–1500 µg/day,800–1100 µg/day,Avoid indiscriminate high-dose supplementation; consider hepatic function and toxicity.
+vitamin_d,Vitamin D,Fat-soluble vitamin,25 µg/day,5 µg/day (standard); 20–25 µg/day in higher-requirement PN,Status is assessed with serum 25(OH)D; deficiency treatment is distinct from routine provision.
+vitamin_e,Vitamin E,Fat-soluble vitamin,15 mg/day,≥9 mg/day,Interpret status with lipid concentrations and clinical context.
+vitamin_k,Vitamin K,Fat-soluble vitamin,120 µg/day,150 µg/day,"Consider anticoagulant therapy, cholestasis, malabsorption and prolonged antibiotic exposure."
+thiamine,Thiamin (Vitamin B1),Water-soluble vitamin,1.5–3 mg/day,≥2.5 mg/day,Higher doses are used in selected high-risk states; refeeding-risk management requires separate consideration.
+riboflavin,Riboflavin (Vitamin B2),Water-soluble vitamin,≥1.2 mg/day,3.6 mg/day,Assessment is not routinely required; consider deficiency risk and prolonged inadequate intake.
+niacin,Niacin (Vitamin B3),Water-soluble vitamin,18 mg/day,40 mg/day,Consider deficiency in prolonged poor intake or malabsorption; pharmacologic dosing is outside routine provision.
+pantothenic_acid,Pantothenic Acid (Vitamin B5),Water-soluble vitamin,5 mg/day,≥15 mg/day,Deficiency is uncommon; routine provision differs from treatment of suspected deficiency.
+pyridoxine,Pyridoxine (Vitamin B6),Water-soluble vitamin,≥1.5 mg/day,4–6 mg/day,Plasma PLP is affected by inflammation; red-cell PLP may be more informative in serious illness.
+biotin,Biotin (Vitamin B7),Water-soluble vitamin,30 µg/day,60 µg/day,"Deficiency is uncommon but may occur with severe malnutrition, malabsorption or prolonged nutrition support."
+folate,Folate (Vitamin B9),Water-soluble vitamin,330–400 µg DFE/day,400 µg/day,Interpret folate together with vitamin B12 status where clinically relevant.
+cobalamin,Cobalamin (Vitamin B12),Water-soluble vitamin,>2.5 µg/day,5 µg/day,Serum B12 alone may be insufficient in selected cases; functional biomarkers can support assessment.
+vitamin_c,Vitamin C,Water-soluble vitamin,100 mg/day,100–200 mg/day,Plasma vitamin C is difficult to interpret during critical illness or severe inflammation.

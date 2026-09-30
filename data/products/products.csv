@@ -1,0 +1,5 @@
+product_id,manufacturer,product_name,category,subcategory,route,physical_form,market,verification_status,active
+DEMO_EN_15,Pocket Guide Demo,Demo 1.5 kcal/mL Formula,ENTERAL_FORMULA,STANDARD_POLYMERIC,ENTERAL,READY_TO_FEED,DEMO,DEMO_ONLY,true
+DEMO_EN_HP,Pocket Guide Demo,Demo High-Protein Formula,ENTERAL_FORMULA,HIGH_PROTEIN,ENTERAL,READY_TO_FEED,DEMO,DEMO_ONLY,true
+DEMO_ONS,Pocket Guide Demo,Demo Oral Supplement,ORAL_NUTRITION_SUPPLEMENT,HIGH_ENERGY,ORAL,READY_TO_DRINK,DEMO,DEMO_ONLY,true
+DEMO_PROTEIN,Pocket Guide Demo,Demo Protein Modular,PROTEIN_MODULAR,PROTEIN_MODULAR,ORAL_ENTERAL,POWDER,DEMO,DEMO_ONLY,true

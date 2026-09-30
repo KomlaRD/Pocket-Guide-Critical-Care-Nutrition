@@ -1,0 +1,13 @@
+{
+  "candidate_batch_sha256": "PASTE_REVIEW_MANIFEST_BATCH_SHA256",
+  "candidate_file_sha256": {
+    "products.csv": "PASTE_SHA256_OF_REVIEWED_CANDIDATE_FILE",
+    "product_preparations.csv": "PASTE_SHA256_OF_REVIEWED_CANDIDATE_FILE",
+    "product_nutrients.csv": "PASTE_SHA256_OF_REVIEWED_CANDIDATE_FILE",
+    "product_sources.csv": "PASTE_SHA256_OF_REVIEWED_CANDIDATE_FILE"
+  },
+  "released_by": "DIFFERENT_INSTITUTIONAL_RELEASE_AUTHORIZER",
+  "released_on": "YYYY-MM-DD",
+  "checks": {"institutional_release_approved": false, "catalog_conflicts_checked": false},
+  "release_notes": "Document release approval, country/formulation applicability, and limitations."
+}

@@ -1,0 +1,11 @@
+nutrient_id,nutrient_name,nutrient_group,canonical_unit,sort_order
+ENERGY,Energy,macronutrient,kcal,1
+PROTEIN,Protein,macronutrient,g,2
+CARBOHYDRATE,Carbohydrate,macronutrient,g,3
+FAT,Fat,macronutrient,g,4
+FIBRE,Fibre,macronutrient,g,5
+WATER,Free water,fluid,mL,6
+SODIUM,Sodium,electrolyte,mg,10
+POTASSIUM,Potassium,electrolyte,mg,11
+PHOSPHORUS,Phosphorus,electrolyte,mg,12
+MAGNESIUM,Magnesium,electrolyte,mg,13
