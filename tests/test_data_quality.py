@@ -6,7 +6,7 @@ ROOT=Path(__file__).resolve().parents[1]
 def test_bundled_data_has_no_structural_errors():
     report=audit_data(ROOT/'data')
     assert report.passed, [x.message for x in report.errors]
-    assert any('demonstration composition' in x.message for x in report.warnings)
+    assert not any('demonstration composition' in x.message for x in report.warnings)
 
 def test_duplicate_product_id_fails_closed(tmp_path):
     shutil.copytree(ROOT/'data', tmp_path/'data')

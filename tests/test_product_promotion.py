@@ -37,7 +37,7 @@ def test_creates_new_audited_catalog_without_touching_original(tmp_path):
     assert (DATA/'products/products.csv').read_bytes()==original
     assert (output/'release_manifest.json').exists()
     with (output/'products/products.csv').open() as f:
-        assert len(list(csv.DictReader(f)))==5
+        assert len(list(csv.DictReader(f)))==16
 
 
 def test_refuses_tampered_candidate(tmp_path):
@@ -67,7 +67,7 @@ def test_refuses_identity_collision(tmp_path):
     products=reviewed/'products.csv'
     content=products.read_text()
     # Existing demonstration product ID must not be replaced, even by an approved export.
-    products.write_text(content.replace('P1,','DEMO_EN_15,'))
+    products.write_text(content.replace('P1,','ABB_GLU_15_GHREF,'))
     data['candidate_file_sha256']['products.csv']=hashlib.sha256(products.read_bytes()).hexdigest()
     approval.write_text(json.dumps(data))
     with pytest.raises(ValueError,match='collision'):

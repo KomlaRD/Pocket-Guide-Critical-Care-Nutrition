@@ -87,8 +87,16 @@ def validate_staging(directory: str | Path, known_nutrients: set[str] | None = N
         if r['product_id'] not in sourced: error('products',i,'At least one traceable source is required.')
     for i,r in enumerate(tables['sources'],2):
         if r['verification_status'] != 'PENDING_VERIFICATION': error('sources',i,'Staged sources cannot claim verification.')
-        url=urlparse(r['source_url'])
-        if url.scheme != 'https' or not url.netloc: error('sources',i,'A direct HTTPS source URL is required.')
+        source_type=(r.get('source_type') or '').strip()
+        source_url=(r.get('source_url') or '').strip()
+        if source_type == 'MANUFACTURER_PDF':
+            if source_url:
+                url=urlparse(source_url)
+                if url.scheme != 'https' or not url.netloc: error('sources',i,'If supplied, manufacturer PDF URL must be HTTPS.')
+            if not (r.get('document_version') or '').strip(): error('sources',i,'Uploaded manufacturer PDF requires a document/page locator.')
+        else:
+            url=urlparse(source_url)
+            if url.scheme != 'https' or not url.netloc: error('sources',i,'A direct HTTPS source URL is required.')
         try:
             if date.fromisoformat(r['accessed_on']) > date.today(): raise ValueError
         except ValueError: error('sources',i,'accessed_on must be a valid non-future ISO date.')

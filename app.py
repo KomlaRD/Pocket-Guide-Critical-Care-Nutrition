@@ -8,7 +8,7 @@ from shiny import reactive
 from core.delivery import (
     ProductDatabase, NutritionSource, CustomNutritionSource,
     calculate_delivery, calculate_custom_delivery, combine_nutrient_totals,
-    volume_delivery_percent,
+    volume_delivery_percent, amount_for_nutrient, compare_liquid_formula, continuous_feeding_from_energy, bolus_feeding_from_energy,
 )
 
 from core.non_nutrition import EnergySource, calculate_energy_exposure, iv_dextrose_energy, propofol_energy_from_volume
@@ -75,16 +75,27 @@ with ui.sidebar(open="desktop"):
         ui.div(ui.h4("Pocket Guide"), ui.p("CRITICAL CARE NUTRITION", class_="brand-subtitle")),
         class_="brand-lockup",
     )
+    ui.div(
+        ui.span("Adult", class_="nav-scope-chip"), ui.span("Pediatric", class_="nav-scope-chip"),
+        ui.span("Tools", class_="nav-scope-chip"), ui.span("Products", class_="nav-scope-chip"),
+        class_="nav-scope-legend",
+    )
     ui.input_radio_buttons(
         "page", "Pocket Guide",
         {"home":"Home","find":"Find Guidance","guidelines":"Critical Care Guidelines","refeeding":"Refeeding Syndrome",
          "micronutrients":"Micronutrients","reference":"Quick Reference","requirements":"Energy & Protein",
-         "support":"Nutrition Support","safety":"Safety","renal":"Renal & KRT","obesity":"Obesity in ICU","pancreatitis":"Acute Pancreatitis","liver":"Liver Disease","gi_losses":"GI Losses & Intestinal Failure","special_icu":"Trauma, Burns & Sepsis","monitoring_check":"Monitoring Checklist","anthro":"Anthropometry",
+         "support":"Nutrition Support","safety":"Safety","renal":"Renal & KRT","obesity":"Obesity in ICU","pancreatitis":"Acute Pancreatitis","liver":"Liver Disease","gi_losses":"GI Losses & Intestinal Failure","special_icu":"Trauma, Burns & Sepsis","monitoring_check":"Monitoring Checklist","pediatric":"Pediatric Critical Care","anthro":"Anthropometry",
          "toolkit":"Calculators & Conversions","metabolic":"Metabolic Calculators",
-         "adequacy":"Nutrition Adequacy","delivery":"Nutrition Delivery"},
+         "adequacy":"Nutrition Adequacy","products":"Product Reference","compare_products":"Compare Formulas","delivery":"Nutrition Delivery"},
         selected="home",
     )
     ui.p("Reference and bedside calculation tool. No patient identifiers or records are collected.", class_="small-note")
+    ui.div(
+        ui.span("Developer: Eric Anku"),
+        ui.span(" · "),
+        ui.a("GitHub: KomlaRD", href="https://github.com/KomlaRD", target="_blank", rel="noopener noreferrer"),
+        class_="developer-note",
+    )
 
 
 with ui.panel_conditional("input.page === 'home'"):
@@ -104,9 +115,18 @@ with ui.panel_conditional("input.page === 'home'"):
         class_="card-grid",
     )
     ui.div(
-        ui.strong("Clinical use: "),
-        "Calculated values support, but do not replace, individualized assessment, clinical judgment, or institutional protocols.",
-        class_="info-box",
+        ui.strong("Clinical use & limitations"),
+        ui.p("This pocket guide is an evidence-informed clinical reference and decision-support tool. It does not replace individualized nutrition assessment, professional clinical judgment, current product labeling, institutional policies, or locally applicable protocols."),
+        ui.p("Recommendations and calculations must be interpreted in the context of the individual patient, including diagnosis, age, clinical phase, organ function, route of nutrition support, laboratory data, fluid status, treatment goals, contraindications, and response to therapy."),
+        ui.p("Guidelines, product formulations, and clinical evidence may change. Clinicians should verify information against the current primary source, manufacturer information, and local policy when this could affect care."),
+        ui.p(ui.strong("Professional responsibility: "), "The treating clinician remains responsible for verifying the appropriateness and accuracy of information used from this application and for all clinical decisions, prescriptions, monitoring, and patient care arising from its use."),
+        class_="limitation-box",
+    )
+    ui.div(
+        ui.h4("Developer"),
+        ui.p("Eric Anku — Registered Dietitian and developer of Pocket Guide Critical Care."),
+        ui.a("GitHub · KomlaRD", href="https://github.com/KomlaRD", target="_blank", rel="noopener noreferrer"),
+        class_="developer-card",
     )
 
 
@@ -1267,6 +1287,282 @@ with ui.panel_conditional("input.page === 'monitoring_check'"):
         ui.p("Exact laboratory frequency should be individualized to clinical stability, therapy, organ function and local protocol. The guide intentionally avoids a universal daily laboratory panel.",class_="small-note")
 
 
+with ui.panel_conditional("input.page === 'pediatric'"):
+    ui.h2("Pediatric Critical Care Nutrition")
+    ui.p("Pediatric-specific bedside guidance. Do not extrapolate adult ICU energy or protein targets to children.", class_="section-intro")
+    ui.div(
+        ui.div("CLINICAL QUESTION", class_="question-zone-label"),
+        ui.input_select("ped_topic", "Choose a pediatric question", {
+            "scope":"Population & scope", "assess":"Nutrition assessment & risk", "en":"Starting & advancing EN",
+            "energy":"Energy prescription", "protein":"Protein", "formula":"Formula & enteral strategy",
+            "hemo":"Hemodynamic support", "pn":"Parenteral nutrition", "monitor":"Monitoring & interruptions","calc":"Energy & protein calculator","growth":"Anthropometry & growth","en_calc":"EN delivery & adequacy","en_safe":"EN advancement & safety","quick":"Quick reference","phase_monitor":"Phase-based monitoring",
+        }, selected="scope"), class_="question-zone",
+    )
+    with ui.panel_conditional("input.ped_topic === 'scope'"):
+        with ui.card():
+            ui.card_header("Population & scope")
+            ui.tags.ul(
+                ui.tags.li("ASPEN/SCCM 2017 applies to critically ill children >1 month and <18 years, generally expected to require >2–3 days in a PICU."),
+                ui.tags.li("The ASPEN/SCCM guideline does not cover neonates; use neonatal/pediatric-specific guidance for that population."),
+                ui.tags.li("ESPNIC 2020 includes selected recommendations for critically ill term neonates as well as infants and children."),
+                ui.tags.li("Age, growth, baseline nutrition status and phase of illness materially change nutrition decisions."),
+            )
+    with ui.panel_conditional("input.ped_topic === 'assess'"):
+        with ui.card():
+            ui.card_header("Nutrition assessment & risk")
+            ui.tags.ul(
+                ui.tags.li("Obtain accurate weight and length/height when feasible and interpret age-appropriate growth indices."),
+                ui.tags.li("Assess recent intake, weight/growth trajectory, underlying disease, GI function and evidence of malnutrition."),
+                ui.tags.li("Identify pre-existing malnutrition or high risk of nutritional deterioration early; fluid shifts can distort weight."),
+            )
+    with ui.panel_conditional("input.ped_topic === 'en'"):
+        with ui.card():
+            ui.card_header("Starting & advancing EN")
+            ui.tags.ul(
+                ui.tags.li("EN is the preferred route when the gastrointestinal tract is usable."),
+                ui.tags.li("ESPNIC recommends early EN within 24 hours of admission unless contraindicated; ASPEN/SCCM supports initiation within 24–48 hours in eligible PICU patients."),
+                ui.tags.li("Advance stepwise with a feeding protocol that addresses eligibility, advancement and intolerance."),
+                ui.tags.li("Minimize avoidable interruptions and prolonged fasting around procedures."),
+            )
+    with ui.panel_conditional("input.ped_topic === 'energy'"):
+        with ui.card():
+            ui.card_header("Energy · avoid acute-phase overfeeding")
+            ui.tags.ul(
+                ui.tags.li("During the acute phase, ESPNIC recommends energy intake should not exceed resting energy expenditure (REE)."),
+                ui.tags.li("If indirect calorimetry is unavailable, pediatric guidance supports the Schofield equation; ASPEN/SCCM also accepts FAO/WHO/UNU equations without added stress factors."),
+                ui.tags.li("Do not use adult predictive equations, Harris–Benedict, or healthy-child RDA energy values as the critical-illness prescription."),
+                ui.tags.li("After the acute phase, account for recovery, activity, rehabilitation and growth."),
+            )
+            ui.div("Indirect calorimetry appears here because it is part of the pediatric guideline; this does not reintroduce the deferred dedicated IC interpretation module.", class_="info-box")
+    with ui.panel_conditional("input.ped_topic === 'protein'"):
+        with ui.card():
+            ui.card_header("Protein · preserve guideline nuance")
+            ui.tags.ul(
+                ui.tags.li("ASPEN/SCCM recommends a minimum protein intake of 1.5 g/kg/day in critically ill children and cautions against using healthy-child RDA values to prescribe protein."),
+                ui.tags.li("ESPNIC states that ≥1.5 g/kg/day enteral protein can be considered to avoid negative protein balance."),
+                ui.tags.li("ESPNIC also found insufficient evidence that additional protein/amino-acid intake during the acute phase improves clinical outcomes."),
+                ui.tags.li("Do not interpret 1.5 g/kg/day as a mandate to aggressively exceed that dose in every acutely critically ill child."),
+            )
+    with ui.panel_conditional("input.ped_topic === 'formula'"):
+        with ui.card():
+            ui.card_header("Formula & enteral strategy")
+            ui.tags.ul(
+                ui.tags.li("Use polymeric feeds as first choice for most critically ill children unless contraindicated."),
+                ui.tags.li("Protein- and energy-dense formulations may help when fluid restriction limits volume."),
+                ui.tags.li("Peptide-based feeds may be considered when polymeric feeds are poorly tolerated or contraindicated."),
+            )
+    with ui.panel_conditional("input.ped_topic === 'hemo'"):
+        with ui.card():
+            ui.card_header("Hemodynamic support")
+            ui.tags.ul(
+                ui.tags.li("ESPNIC supports early EN in children stable on pharmaceutical hemodynamic support and in stable children on extracorporeal life support."),
+                ui.tags.li("Vasoactive medication alone is not an automatic reason to withhold all EN."),
+                ui.tags.li("Do not advance feeding through uncontrolled shock or suspected intestinal ischemia."),
+            )
+    with ui.panel_conditional("input.ped_topic === 'pn'"):
+        with ui.card():
+            ui.card_header("Parenteral nutrition")
+            ui.tags.ul(
+                ui.tags.li("ASPEN/SCCM does not recommend initiating PN within the first 24 hours of PICU admission."),
+                ui.tags.li("When EN is tolerated, advance enterally rather than routinely adding early supplemental PN."),
+                ui.tags.li("With normal baseline nutrition status and low risk of deterioration, supplemental PN can be delayed until about 1 week after PICU admission."),
+                ui.tags.li("If severely malnourished or at high risk of nutritional deterioration and unable to advance beyond low-volume EN, PN during the first week may be considered individually."),
+                ui.tags.li("ESPNIC similarly states that withholding PN for up to one week can be considered while providing micronutrients."),
+            )
+    with ui.panel_conditional("input.ped_topic === 'monitor'"):
+        with ui.card():
+            ui.card_header("Monitoring & interruptions")
+            ui.tags.ul(
+                ui.tags.li("Track actual energy and protein delivered rather than prescription alone."),
+                ui.tags.li("Review avoidable feeding interruptions and progress of EN advancement."),
+                ui.tags.li("Monitor glucose, fluid balance and clinically relevant electrolytes according to illness severity and therapy."),
+                ui.tags.li("Follow growth/weight trajectory with awareness of fluid shifts and reassess nutrition risk during prolonged admission."),
+            )
+    with ui.panel_conditional("input.ped_topic === 'calc'"):
+        with ui.card():
+            ui.card_header("Pediatric Energy & Protein Calculator")
+            ui.p("For critically ill children >1 month to <18 years. Uses Schofield weight-only equations as a fallback estimate when measured REE is unavailable. Do not add a stress factor during the acute phase.")
+            ui.input_numeric("ped_age","Age (years)",value=5,min=0.09,max=17.99,step=0.1)
+            ui.input_radio_buttons("ped_sex","Sex used by Schofield equation",{"male":"Male","female":"Female"},selected="male",inline=True)
+            ui.input_numeric("ped_weight","Weight (kg)",value=20,min=0.5,max=250,step=0.1)
+            @render.ui
+            def ped_calc_result():
+                age=float(input.ped_age()); w=float(input.ped_weight()); sex=input.ped_sex()
+                if age < (1/12) or age >= 18 or w <= 0:
+                    return ui.div("This calculator is restricted to children >1 month and <18 years with a valid weight.",class_="warning-box")
+                if sex == "male":
+                    ree=(59.512*w-30.4) if age < 3 else ((22.706*w+504.3) if age < 10 else (17.686*w+658.2))
+                else:
+                    ree=(58.317*w-31.1) if age < 3 else ((20.315*w+485.9) if age < 10 else (13.384*w+692.6))
+                protein=1.5*w
+                return ui.div(ui.h4(f"Estimated REE: {ree:,.0f} kcal/day"),ui.p(f"Reference minimum protein at 1.5 g/kg/day: {protein:.1f} g/day"),ui.p("Protein reflects ASPEN/SCCM pediatric guidance; interpret with the nuance in the Protein section. Energy and protein remain separate prescription decisions.",class_="small-note"),class_="result-card")
+            ui.div("Calculated REE is an estimate, not an automatic feeding target. During acute critical illness, avoid energy intake exceeding REE; reassess after the acute phase for recovery, activity and growth.",class_="warning-box")
+
+    with ui.panel_conditional("input.ped_topic === 'growth'"):
+        with ui.card():
+            ui.card_header("Anthropometry & Growth")
+            ui.tags.ul(
+                ui.tags.li("Use accurate weight and recumbent length/standing height where feasible and age- and sex-appropriate pediatric growth references."),
+                ui.tags.li("Do not interpret pediatric BMI using adult BMI cutoffs; use BMI-for-age where appropriate."),
+                ui.tags.li("Weight-for-age alone cannot distinguish stunting from wasting and should not be the sole nutrition-status measure."),
+                ui.tags.li("Consider weight-for-length/height or BMI-for-age, length/height-for-age and growth trajectory according to age and available standards."),
+                ui.tags.li("MUAC can add useful information when appropriate reference standards and technique are available."),
+                ui.tags.li("Edema, resuscitation and fluid accumulation can make serial weight misleading in critical illness."),
+            )
+            ui.div("This release does not calculate pediatric z-scores because correct interpretation requires sex-, age- and reference-specific LMS data. Do not approximate pediatric growth status with adult thresholds.",class_="warning-box")
+
+    with ui.panel_conditional("input.ped_topic === 'en_calc'"):
+        with ui.card():
+            ui.card_header("Pediatric EN Delivery & Adequacy")
+            ui.p("Transient bedside calculation for children >1 month to <18 years. Enter the feed composition from the verified product label; no product values are assumed or stored.")
+            ui.input_numeric("ped_en_weight","Weight (kg)",value=20,min=0.5,max=250,step=0.1)
+            ui.input_numeric("ped_en_rate","EN rate (mL/hour)",value=20,min=0,max=500,step=1)
+            ui.input_numeric("ped_en_hours","Hours delivered per day",value=24,min=0,max=24,step=0.5)
+            ui.input_numeric("ped_en_kcal100","Feed energy (kcal/100 mL)",value=100,min=1,max=500,step=1)
+            ui.input_numeric("ped_en_prot100","Feed protein (g/100 mL)",value=3,min=0,max=30,step=0.1)
+            ui.input_numeric("ped_en_energy_goal","Current energy goal (kcal/day)",value=1000,min=1,max=10000,step=10)
+            ui.input_numeric("ped_en_protein_goal","Current protein goal (g/day)",value=30,min=0.1,max=500,step=0.5)
+            @render.ui
+            def ped_en_result():
+                w=float(input.ped_en_weight()); rate=float(input.ped_en_rate()); hrs=float(input.ped_en_hours())
+                kcal100=float(input.ped_en_kcal100()); prot100=float(input.ped_en_prot100())
+                eg=float(input.ped_en_energy_goal()); pg=float(input.ped_en_protein_goal())
+                if w<=0 or hrs<0 or hrs>24 or rate<0 or kcal100<=0 or eg<=0 or pg<=0:
+                    return ui.div("Check weight, rate, delivery hours and goal values. Hours delivered must be 0–24.",class_="warning-box")
+                vol=rate*hrs; kcal=vol*kcal100/100; protein=vol*prot100/100
+                return ui.div(
+                    ui.h4(f"Delivered volume: {vol:,.0f} mL/day"),
+                    ui.p(f"Fluid from EN: {vol/w:.1f} mL/kg/day"),
+                    ui.p(f"Energy delivered: {kcal:,.0f} kcal/day ({100*kcal/eg:.0f}% of current goal)"),
+                    ui.p(f"Protein delivered: {protein:.1f} g/day ({protein/w:.2f} g/kg/day; {100*protein/pg:.0f}% of current goal)"),
+                    ui.p("EN fluid is only one component of total fluid intake. Include medications, IV fluids, flushes, PN and other sources when assessing fluid balance.",class_="small-note"),
+                    class_="result-card",
+                )
+            ui.div("Adequacy percentages describe delivery versus the goal you entered; they do not validate that the goal itself is appropriate. In the acute phase, pediatric energy intake should not exceed REE.",class_="warning-box")
+
+    with ui.panel_conditional("input.ped_topic === 'en_safe'"):
+        with ui.card():
+            ui.card_header("Pediatric EN Advancement & Safety")
+            ui.tags.ol(
+                ui.tags.li("Confirm EN eligibility and clinical stability; exclude a clear contraindication."),
+                ui.tags.li("Commence early EN—ESPNIC recommends within 24 h unless contraindicated; ASPEN/SCCM supports 24–48 h in eligible PICU patients."),
+                ui.tags.li("Use a local/institutional pediatric feeding protocol to increase EN stepwise toward the current goal."),
+                ui.tags.li("At each step, review hemodynamic status, abdominal findings, vomiting and other clinically relevant intolerance rather than advancing automatically."),
+                ui.tags.li("Minimize avoidable interruptions and prolonged fasting around procedures; record the practical reason for under-delivery when reviewing adequacy."),
+                ui.tags.li("In fluid restriction, consider verified energy/protein-dense pediatric formulations when appropriate rather than simply increasing volume."),
+            )
+            ui.div("No universal mL/kg/hour advancement schedule is embedded: ESPNIC and ASPEN/SCCM recommend protocolized stepwise advancement, and the optimal rate varies with age, diagnosis, route, clinical stability and local practice.",class_="info-box")
+        with ui.card():
+            ui.card_header("Hemodynamic Support")
+            ui.tags.ul(
+                ui.tags.li("Stable children receiving pharmaceutical hemodynamic support can receive early EN according to ESPNIC."),
+                ui.tags.li("Vasoactive medication is not, by itself, an automatic contraindication to EN."),
+                ui.tags.li("Do not advance feeding through uncontrolled shock, inadequate systemic perfusion or concern for intestinal ischemia."),
+            )
+        with ui.card():
+            ui.card_header("PICU Delivery Check")
+            ui.tags.ul(
+                ui.tags.li("What percentage of the current energy and protein goals was actually delivered?"),
+                ui.tags.li("Were deficits caused by intolerance, procedures/fasting, access problems or prescription/volume limitations?"),
+                ui.tags.li("Is the current goal appropriate for the illness phase, or are we chasing a target that risks overfeeding?"),
+                ui.tags.li("Does fluid restriction require a more concentrated verified pediatric formula?"),
+                ui.tags.li("Has the child transitioned from acute illness toward recovery, rehabilitation and growth needs?"),
+            )
+
+    with ui.panel_conditional("input.ped_topic === 'quick'"):
+        with ui.card():
+            ui.card_header("Pediatric Critical Care · Quick Reference")
+            with ui.layout_columns(col_widths=(6,6)):
+                with ui.card():
+                    ui.card_header("Route & timing")
+                    ui.p("Prefer EN when the GI tract is usable. ESPNIC: commence early EN within 24 h unless contraindicated. ASPEN/SCCM: early EN within 24–48 h in eligible PICU patients.")
+                with ui.card():
+                    ui.card_header("Energy")
+                    ui.p("Acute phase: avoid energy intake exceeding REE. If measured REE is unavailable, use a pediatric equation such as Schofield without adding a stress factor.")
+                with ui.card():
+                    ui.card_header("Protein")
+                    ui.p("ASPEN/SCCM minimum reference: 1.5 g/kg/day. Interpret alongside ESPNIC's evidence caveat; do not use protein targets to justify energy overfeeding.")
+                with ui.card():
+                    ui.card_header("PN")
+                    ui.p("Do not routinely initiate PN in the first 24 h. In normally nourished, lower-risk children, supplemental PN may be delayed to about 1 week; individualize earlier PN for severe malnutrition/high deterioration risk when EN cannot advance.")
+                with ui.card():
+                    ui.card_header("Hemodynamics")
+                    ui.p("Vasoactive medication alone is not an automatic EN contraindication in a stable child. Do not advance feeding during uncontrolled shock or suspected intestinal ischemia.")
+                with ui.card():
+                    ui.card_header("Growth & recovery")
+                    ui.p("Use age- and sex-appropriate growth references. After the acute phase, reassess energy for recovery, activity, rehabilitation, catch-up needs and growth.")
+            ui.div("Population reminder: the ASPEN/SCCM pediatric critical-care guideline covers children >1 month and <18 years and excludes neonates. Do not use this quick reference as a neonatal prescription.",class_="warning-box")
+
+    with ui.panel_conditional("input.ped_topic === 'phase_monitor'"):
+        ui.div(
+            ui.input_select("ped_mon_phase","Current phase",{
+                "acute":"Acute / early PICU",
+                "stable":"Stable / advancing nutrition",
+                "recovery":"Recovery, rehabilitation & growth",
+                "interrupt":"After interruption or clinical deterioration",
+            },selected="acute"),
+            class_="question-zone",
+        )
+        with ui.panel_conditional("input.ped_mon_phase === 'acute'"):
+            with ui.card():
+                ui.card_header("Acute / Early PICU")
+                ui.tags.ul(
+                    ui.tags.li("Confirm current hemodynamic stability and EN eligibility before initiation or advancement."),
+                    ui.tags.li("Assess baseline nutrition/growth risk and recent intake; identify severe malnutrition or risk of deterioration."),
+                    ui.tags.li("Start early EN when eligible and advance stepwise according to a pediatric feeding protocol."),
+                    ui.tags.li("Review actual energy/protein delivery and avoid acute-phase energy intake above REE."),
+                    ui.tags.li("Monitor glucose, fluid balance and clinically relevant electrolytes according to illness severity and therapy."),
+                    ui.tags.li("If prolonged poor intake or malnutrition raises refeeding concern, apply appropriate refeeding safeguards rather than rapid escalation."),
+                )
+        with ui.panel_conditional("input.ped_mon_phase === 'stable'"):
+            with ui.card():
+                ui.card_header("Stable / Advancing Nutrition")
+                ui.tags.ul(
+                    ui.tags.li("Compare actual delivered energy and protein with the current phase-appropriate goals."),
+                    ui.tags.li("Review interruptions, fasting, access issues and GI tolerance before increasing the prescription."),
+                    ui.tags.li("Reassess whether fluid restriction requires a verified energy/protein-dense pediatric formulation."),
+                    ui.tags.li("Review weight with fluid status and follow age-appropriate growth/anthropometric trajectory."),
+                    ui.tags.li("Reassess the need for PN as EN advances; avoid maintaining supplemental PN by inertia."),
+                )
+        with ui.panel_conditional("input.ped_mon_phase === 'recovery'"):
+            with ui.card():
+                ui.card_header("Recovery, Rehabilitation & Growth")
+                ui.tags.ul(
+                    ui.tags.li("Do not continue acute-phase energy restriction automatically once the child is recovering."),
+                    ui.tags.li("Reassess energy needs for activity, rehabilitation, catch-up needs and normal growth."),
+                    ui.tags.li("Continue adequate protein while evaluating total energy balance and oral/enteral transition."),
+                    ui.tags.li("Review weight, length/height where appropriate, BMI-for-age or weight-for-length/height, and growth trajectory using suitable references."),
+                    ui.tags.li("Plan transition toward oral intake when safe and feasible; reduce artificial nutrition as adequate oral intake becomes established."),
+                )
+        with ui.panel_conditional("input.ped_mon_phase === 'interrupt'"):
+            with ui.card():
+                ui.card_header("After Interruption or Clinical Deterioration")
+                ui.tags.ul(
+                    ui.tags.li("Identify why nutrition stopped: procedure, intolerance, access problem, hemodynamic deterioration or other cause."),
+                    ui.tags.li("Reassess EN eligibility and current goals before restarting; do not automatically resume the previous rate after major deterioration."),
+                    ui.tags.li("After prolonged interruption or marked undernutrition, reconsider electrolyte/refeeding risk before rapid advancement."),
+                    ui.tags.li("Recalculate actual delivery and avoid aggressive catch-up feeding that could produce overfeeding."),
+                )
+                ui.div("A change in clinical phase should trigger reassessment of the nutrition strategy, not merely continuation of the previous prescription.",class_="warning-box")
+        with ui.card():
+            ui.card_header("Daily Pediatric Nutrition Review")
+            ui.tags.ol(
+                ui.tags.li("Phase: acute, stable/advancing, or recovery?"),
+                ui.tags.li("Route: is oral/EN/PN strategy still appropriate?"),
+                ui.tags.li("Delivery: what energy, protein and fluid were actually delivered?"),
+                ui.tags.li("Safety/tolerance: is advancement appropriate today?"),
+                ui.tags.li("Growth/trajectory: what has changed beyond today's numbers?"),
+            )
+            ui.p("This checklist is a bedside cognitive aid. Responses are transient and are not stored.",class_="small-note")
+
+    ui.div(
+        ui.div("EVIDENCE & SOURCES", class_="evidence-zone-label"),
+        ui.div(ui.h4("ASPEN/SCCM pediatric guideline"), ui.p("Mehta NM, Skillman HE, Irving SY, et al. JPEN. 2017;41(5):706–742."), ui.a("Open PubMed record", href="https://pubmed.ncbi.nlm.nih.gov/28686844/", target="_blank", rel="noopener noreferrer"), class_="evidence-card"),
+        ui.div(ui.h4("ESPNIC position statement"), ui.p("Tume LN, Valla FV, Joosten K, et al. Intensive Care Medicine. 2020;46:411–425."), ui.a("Open full text", href="https://pmc.ncbi.nlm.nih.gov/articles/PMC7067708/", target="_blank", rel="noopener noreferrer"), class_="evidence-card"),
+        class_="evidence-zone",
+    )
+
+
 with ui.panel_conditional("input.page === 'anthro'"):
     ui.h2("Anthropometry")
     ui.p("Transient bedside calculations only. Enter the measurements used for this calculation; values are not stored as a patient record.", class_="section-intro")
@@ -1406,10 +1702,150 @@ with ui.panel_conditional("input.page === 'support'"):
             return result_card("GIR", num(r.value, 2), r.unit, "IV glucose mg/day / (dosing weight × 1440 min)")
 
 
+
+with ui.panel_conditional("input.page === 'products'"):
+    ui.h2("Product Reference")
+    ui.p("Compare Ghana-relevant Abbott nutrition products and perform transient formulation-specific calculations. Confirm the exact product/form on the pack before applying results.", class_="section-intro")
+    ui.div("Manufacturer composition reference: Abbott Nutrition Adult Nutrition Product Guide. Product forms are kept separate because Glucerna formulations encountered locally may differ.", class_="info-box")
+    with ui.card():
+        ui.card_header("Select exact product / formulation")
+        ui.input_select("prod_ref_product", "Product", PRODUCT_CHOICES, selected="ABB_ENSURE_PLUS_GHREF")
+    @render.ui
+    def product_reference_details():
+        def compute():
+            prod=PRODUCT_DB.product(input.prod_ref_product())
+            return prod,PRODUCT_DB.nutrients_for(prod.product_id)
+        result,err=safe_result(compute)
+        if err:return ui.div(err,class_="error-box")
+        prod,nutrients=result
+        labels={"ENERGY":"Energy","PROTEIN":"Protein","CARBOHYDRATE":"Carbohydrate","FAT":"Fat","FIBRE":"Fibre","WATER":"Water","SODIUM":"Sodium","POTASSIUM":"Potassium","PHOSPHORUS":"Phosphorus","MAGNESIUM":"Magnesium"}
+        def line(nid):
+            rec=nutrients.get(nid)
+            value="Unknown / not reported" if rec is None else f"{num(rec[0],1)} {rec[1]} per {rec[2]:g} {rec[3]}"
+            return ui.div(ui.span(labels[nid],class_="nutrient-name"),ui.span(value,class_="nutrient-value"),class_="nutrient-row")
+        use_note=("Eligible for volume-based calculations." if prod.volume_calculation_eligible else ("Powder: serving-based calculations only until a verified prepared-volume/dilution record is available." if prod.physical_form=="POWDER" else "Solid product: serving/reference calculations only; excluded from liquid volume/rate calculations."))
+        return ui.div(
+            ui.div(result_card("Reference basis",f"{prod.basis_quantity:g}",prod.basis_unit,prod.name),result_card("Route",prod.route.replace("_"," / ").title(),"",prod.physical_form.replace("_"," ").title()),class_="result-grid"),
+            ui.div(ui.strong("Calculation policy: "),use_note,class_="info-box"),
+            ui.h4("Composition"),*[line(n) for n in NUTRIENT_UNITS],
+            ui.div(ui.strong("Source: "),"Abbott Nutrition Adult Nutrition Product Guide · Ghana reference catalogue.",class_="evidence-card"),
+        )
+    with ui.card():
+        ui.card_header("Energy / protein target calculator")
+        ui.p("Shows how much of the selected product provides a clinician-entered energy or protein amount. It does not determine the nutrition prescription.",class_="small-note")
+        with ui.layout_columns(col_widths=(6,6)):
+            ui.input_numeric("prod_target_energy","Energy amount to provide (kcal)",500,min=1,step=50)
+            ui.input_numeric("prod_target_protein","Protein amount to provide (g)",30,min=0.1,step=1)
+    @render.ui
+    def product_target_results():
+        def compute():
+            prod=PRODUCT_DB.product(input.prod_ref_product())
+            return prod,amount_for_nutrient(PRODUCT_DB,prod.product_id,"ENERGY",input.prod_target_energy()),amount_for_nutrient(PRODUCT_DB,prod.product_id,"PROTEIN",input.prod_target_protein())
+        result,err=safe_result(compute)
+        if err:return ui.div(err,class_="error-box")
+        prod,e,pr=result
+        note=("These are volume calculations from the exact liquid formulation selected." if prod.volume_calculation_eligible else "This product is not eligible for liquid volume/rate calculations; results are expressed only in its source serving unit.")
+        return ui.div(ui.div(result_card("For entered energy",num(e[0],0),e[1],f"Provides {num(input.prod_target_energy(),0)} kcal"),result_card("For entered protein",num(pr[0],0),pr[1],f"Provides {num(input.prod_target_protein(),1)} g protein"),class_="result-grid"),ui.div(note,class_="info-box"))
+
+
+
+with ui.panel_conditional("input.page === 'compare_products'"):
+    ui.h2("Formula Comparison & Feeding Support")
+    ui.p("Compare exact liquid formulations and translate a clinician-entered energy target into a continuous EN volume and rate. This tool compares products; it does not select a preferred formula or determine the patient's prescription.", class_="section-intro")
+    liquid_choices={pid:p.name for pid,p in PRODUCT_DB.products.items() if p.volume_calculation_eligible and p.basis_unit=="mL"}
+    with ui.div(class_="question-zone"):
+        ui.h4("Select formulas")
+        with ui.layout_columns(col_widths=(4,4,4)):
+            ui.input_select("cmp_p1","Formula 1",liquid_choices,selected="ABB_GLU_10_GHREF")
+            ui.input_select("cmp_p2","Formula 2",liquid_choices,selected="ABB_GLU_12_GHREF")
+            ui.input_select("cmp_p3","Formula 3",liquid_choices,selected="ABB_GLU_15_GHREF")
+    @render.ui
+    def formula_comparison_results():
+        def compute(): return [compare_liquid_formula(PRODUCT_DB,x) for x in (input.cmp_p1(),input.cmp_p2(),input.cmp_p3())]
+        result,err=safe_result(compute)
+        if err:return ui.div(err,class_="error-box")
+        def val(v,d=1): return "—" if v is None else num(v,d)
+        cards=[]
+        for x in result:
+            cards.append(ui.div(
+                ui.h4(x.name, class_="comparison-card-title"),
+                ui.div(ui.span("Energy density",class_="nutrient-name"),ui.span(f"{val(x.kcal_per_ml,2)} kcal/mL",class_="nutrient-value"),class_="nutrient-row"),
+                ui.div(ui.span("Protein",class_="nutrient-name"),ui.span(f"{val(x.protein_g_per_1000_kcal)} g/1000 kcal",class_="nutrient-value"),class_="nutrient-row"),
+                ui.div(ui.span("Water",class_="nutrient-name"),ui.span(f"{val(x.water_ml_per_1000_kcal,0)} mL/1000 kcal" if x.water_ml_per_1000_kcal is not None else "—",class_="nutrient-value"),class_="nutrient-row"),
+                ui.div(ui.span("Carbohydrate",class_="nutrient-name"),ui.span(f"{val(x.carbohydrate_g_per_1000_kcal)} g/1000 kcal",class_="nutrient-value"),class_="nutrient-row"),
+                ui.div(ui.span("Sodium",class_="nutrient-name"),ui.span(f"{val(x.sodium_mg_per_1000_kcal,0)} mg/1000 kcal",class_="nutrient-value"),class_="nutrient-row"),
+                ui.div(ui.span("Potassium",class_="nutrient-name"),ui.span(f"{val(x.potassium_mg_per_1000_kcal,0)} mg/1000 kcal",class_="nutrient-value"),class_="nutrient-row"),
+                ui.div(ui.span("Phosphorus",class_="nutrient-name"),ui.span(f"{val(x.phosphorus_mg_per_1000_kcal,0)} mg/1000 kcal",class_="nutrient-value"),class_="nutrient-row"),
+                ui.div(ui.span("Magnesium",class_="nutrient-name"),ui.span(f"{val(x.magnesium_mg_per_1000_kcal,0)} mg/1000 kcal",class_="nutrient-value"),class_="nutrient-row"),
+                class_="comparison-card",
+            ))
+        return ui.div(*cards,class_="comparison-grid")
+    with ui.card():
+        ui.card_header("Continuous EN from clinician-entered target")
+        ui.input_select("feed_product","Liquid formula",liquid_choices,selected="ABB_GLU_15_GHREF")
+        with ui.layout_columns(col_widths=(4,4,4)):
+            ui.input_numeric("feed_energy","Energy target (kcal/day)",1800,min=1,step=50)
+            ui.input_numeric("feed_protein","Protein target (g/day)",90,min=0.1,step=1)
+            ui.input_numeric("feed_hours","Planned feeding time (hours/day)",24,min=1,max=24,step=1)
+        ui.p("Energy and protein targets are clinician-entered and remain separate decisions. The rate below is derived from the energy target; protein adequacy is then checked independently.",class_="small-note")
+    @render.ui
+    def continuous_feeding_results():
+        def compute(): return continuous_feeding_from_energy(PRODUCT_DB,input.feed_product(),input.feed_energy(),input.feed_hours(),input.feed_protein())
+        plan,err=safe_result(compute)
+        if err:return ui.div(err,class_="error-box")
+        protein_text="Unknown" if plan.protein_g_day is None else num(plan.protein_g_day,1)
+        adequacy_text="Cannot assess: protein composition unavailable." if plan.protein_adequacy_percent is None else f"{plan.protein_adequacy_percent:.1f}% of the separately entered protein target."
+        water_text="Unknown / not reported" if plan.water_ml_day is None else f"{num(plan.water_ml_day,0)} mL/day"
+        return ui.div(
+            ui.div(
+                result_card("Formula volume",num(plan.volume_ml_day,0),"mL/day",f"Calculated from {num(plan.target_energy_kcal,0)} kcal/day"),
+                result_card("Continuous rate",num(plan.rate_ml_hr,1),"mL/h",f"If delivered over {num(plan.hours_per_day,0)} h/day"),
+                result_card("Protein delivered",protein_text,"g/day" if plan.protein_g_day is not None else "",adequacy_text),
+                result_card("Formula water",water_text,"","Formula water only; not total fluid intake"),
+                class_="result-grid"),
+            ui.div(ui.strong("Interpretation: "),"Meeting the energy target does not mean the protein target is met. Review both before changing the prescription.",class_="warning-box"),
+        )
+
+    with ui.card():
+        ui.card_header("Gastric bolus feeding")
+        ui.p("For patients selected for gastric bolus feeding, divide the clinician-entered daily target into a practical number of feeds. The calculated volume per feed is not an automatic tolerance limit.",class_="small-note")
+        ui.input_select("bolus_product","Liquid formula",liquid_choices,selected="ABB_ENSURE_PLUS_GHREF")
+        with ui.layout_columns(col_widths=(3,3,3,3)):
+            ui.input_numeric("bolus_energy","Energy target (kcal/day)",1800,min=1,step=50)
+            ui.input_numeric("bolus_protein","Protein target (g/day)",90,min=0.1,step=1)
+            ui.input_numeric("bolus_feeds","Feeds per day",6,min=1,max=12,step=1)
+            ui.input_select("bolus_site","Delivery site",{"GASTRIC":"Gastric","SMALL_BOWEL":"Small bowel"},selected="GASTRIC")
+        ui.p("Administration time and water flush volume should be prescribed according to enteral access, tolerance, fluid requirements and local protocol; they are not inferred from formula volume.",class_="small-note")
+    @render.ui
+    def bolus_feeding_results():
+        def compute(): return bolus_feeding_from_energy(PRODUCT_DB,input.bolus_product(),input.bolus_energy(),input.bolus_feeds(),input.bolus_protein(),input.bolus_site())
+        plan,err=safe_result(compute)
+        if err:return ui.div(err,class_="error-box")
+        pday="Unknown" if plan.protein_g_day is None else f"{num(plan.protein_g_day,1)} g/day"
+        pfeed="Unknown" if plan.protein_g_feed is None else f"{num(plan.protein_g_feed,1)} g/feed"
+        water="Unknown / not reported" if plan.water_ml_day is None else f"{num(plan.water_ml_day,0)} mL/day · {num(plan.water_ml_feed,0)} mL/feed"
+        adequacy="Cannot assess protein adequacy." if plan.protein_adequacy_percent is None else f"{plan.protein_adequacy_percent:.1f}% of separate protein target"
+        return ui.div(
+            ui.div(
+                result_card("Formula volume",num(plan.volume_ml_day,0),"mL/day",f"{plan.feeds_per_day} feeds/day"),
+                result_card("Volume per feed",num(plan.volume_ml_feed,0),"mL/feed","Assess individual gastric tolerance; not a universal safe-volume threshold"),
+                result_card("Protein",pday,"",f"{pfeed} · {adequacy}"),
+                result_card("Formula water",water,"","Does not include prescribed water flushes or other fluids"),
+                class_="result-grid"),
+            ui.div(ui.strong("Bolus safety: "),"Use for gastric delivery only. Review aspiration risk, GI tolerance, positioning and the enteral access. Large boluses may worsen intolerance; do not use this calculated volume as an automatic administration order.",class_="warning-box"),
+        )
+
+    ui.div(
+        ui.div("EVIDENCE & SOURCE CONTEXT",class_="evidence-zone-label"),
+        ui.div(ui.h4("Product composition source"),ui.p("Abbott Nutrition Adult Nutrition Product Guide. Exact formulation identities and manufacturer composition bases are retained in the product catalogue."),class_="evidence-card"),
+        ui.div(ui.h4("Bolus administration context"),ui.p("Nutrition-support references distinguish bolus, intermittent/gravity, cyclic and continuous EN. Bolus administration is a gastric method; the schedule should specify volume per feeding, number of feeds, administration time and water flushes. Patient tolerance and aspiration risk remain clinical considerations."),class_="evidence-card"),
+        class_="evidence-zone",
+    )
+
+
 with ui.panel_conditional("input.page === 'delivery'"):
     ui.h2("Nutrition Delivery")
-    ui.p("Calculate nutrients actually delivered from multiple sources. The bundled products are demonstration data only and must not be used clinically.", class_="section-intro")
-    ui.div(ui.strong("Demo dataset: "), "Replace demonstration compositions with verified manufacturer data before clinical deployment.", class_="warning-box")
+    ui.p("Calculate nutrients actually delivered from selected catalogue products and optional custom sources. Confirm the exact formulation and source basis before use.", class_="section-intro")
 
     with ui.card():
         ui.card_header("Prescription")
@@ -1420,7 +1856,7 @@ with ui.panel_conditional("input.page === 'delivery'"):
 
     with ui.card():
         ui.card_header("Source 1")
-        ui.input_select("source1_product", "Product", PRODUCT_CHOICES, selected="DEMO_EN_15")
+        ui.input_select("source1_product", "Product", PRODUCT_CHOICES, selected="ABB_GLU_15_GHREF")
         with ui.layout_columns(col_widths=(6, 6)):
             ui.input_numeric("source1_rx", "Prescribed amount", 1200, min=0, step=50)
             ui.input_numeric("source1_delivered", "Delivered amount", 850, min=0, step=50)
@@ -1429,7 +1865,7 @@ with ui.panel_conditional("input.page === 'delivery'"):
     with ui.card():
         ui.card_header("Source 2 — Optional")
         ui.input_checkbox("source2_enabled", "Include a second source", False)
-        ui.input_select("source2_product", "Product", PRODUCT_CHOICES, selected="DEMO_ONS")
+        ui.input_select("source2_product", "Product", PRODUCT_CHOICES, selected="ABB_ENSURE_PLUS_GHREF")
         ui.input_numeric("source2_delivered", "Delivered amount", 200, min=0, step=25)
 
     with ui.card():
@@ -1462,9 +1898,13 @@ with ui.panel_conditional("input.page === 'delivery'"):
         def compute():
             sources = []
             p1 = PRODUCT_DB.product(input.source1_product())
+            if not p1.volume_calculation_eligible:
+                raise ValueError(f"{p1.name} is not eligible for liquid delivery calculations. Use Product Reference for serving-based information.")
             sources.append(NutritionSource(p1.product_id, input.source1_delivered(), p1.basis_unit, input.source1_rx()))
             if input.source2_enabled():
                 p2 = PRODUCT_DB.product(input.source2_product())
+                if not p2.volume_calculation_eligible:
+                    raise ValueError(f"{p2.name} is not eligible for liquid delivery calculations. Use Product Reference for serving-based information.")
                 sources.append(NutritionSource(p2.product_id, input.source2_delivered(), p2.basis_unit))
             groups = [calculate_delivery(PRODUCT_DB, sources, NUTRIENT_UNITS)]
             if input.custom_enabled():
@@ -1787,8 +2227,8 @@ with ui.panel_conditional("input.page === 'metabolic'"):
 
 
 with ui.panel_conditional("input.page === 'adequacy'"):
-    ui.h2("Prescription Adequacy")
-    ui.p("Percentages are descriptive. No universal adequacy threshold is imposed by the calculation engine.", class_="section-intro")
+    ui.h2("Nutrition Adequacy")
+    ui.p("Enter the prescribed target and the amount actually delivered. Adequacy is calculated as delivered ÷ prescribed × 100. Percentages are descriptive; no universal adequacy threshold is imposed.", class_="section-intro")
     with ui.card():
         ui.card_header("Energy")
         with ui.layout_columns(col_widths=(6, 6)):
@@ -1799,7 +2239,10 @@ with ui.panel_conditional("input.page === 'adequacy'"):
             r, err = safe_result(lambda: adequacy(input.energy_delivered(), input.energy_prescribed(), "kcal"))
             if err:
                 return ui.div(err, class_="error-box")
-            return result_card("Energy delivered", num(r.value, 1), r.unit, "delivered / prescribed × 100")
+            return ui.div(
+                result_card("Energy adequacy", f"{num(r.value, 1)}%", "", "delivered ÷ prescribed × 100"),
+                ui.p(f"{num(input.energy_delivered(),0)} kcal delivered ÷ {num(input.energy_prescribed(),0)} kcal prescribed", class_="small-note"),
+            )
 
     with ui.card():
         ui.card_header("Protein")
@@ -1811,4 +2254,7 @@ with ui.panel_conditional("input.page === 'adequacy'"):
             r, err = safe_result(lambda: adequacy(input.protein_delivered(), input.protein_prescribed(), "g"))
             if err:
                 return ui.div(err, class_="error-box")
-            return result_card("Protein delivered", num(r.value, 1), r.unit, "delivered / prescribed × 100")
+            return ui.div(
+                result_card("Protein adequacy", f"{num(r.value, 1)}%", "", "delivered ÷ prescribed × 100"),
+                ui.p(f"{num(input.protein_delivered(),1)} g delivered ÷ {num(input.protein_prescribed(),1)} g prescribed", class_="small-note"),
+            )

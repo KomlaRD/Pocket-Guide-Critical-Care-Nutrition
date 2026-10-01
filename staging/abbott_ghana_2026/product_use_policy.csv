@@ -1,0 +1,16 @@
+product_id,use_class,volume_calculation_eligible,notes
+ABB_ENSURE_ORIGINAL_GHREF,ORAL_LIQUID,true,Oral liquid; respect source route restrictions. Not automatically tube-feed eligible.
+ABB_ENSURE_PLUS_GHREF,ORAL_LIQUID,true,Oral liquid; respect source route restrictions. Not automatically tube-feed eligible.
+ABB_GLU_10_GHREF,ENTERAL_OR_ORAL_LIQUID,true,Eligible for volume-based calculations after review/activation.
+ABB_GLU_12_GHREF,ENTERAL_OR_ORAL_LIQUID,true,Eligible for volume-based calculations after review/activation.
+ABB_GLU_15_GHREF,ENTERAL_OR_ORAL_LIQUID,true,Eligible for volume-based calculations after review/activation.
+ABB_GLU_30P_GHREF,ORAL_LIQUID,true,Oral liquid; respect source route restrictions. Not automatically tube-feed eligible.
+ABB_GLU_HSMS_GHREF,ORAL_LIQUID,true,Oral liquid; respect source route restrictions. Not automatically tube-feed eligible.
+ABB_GLU_HSP_GHREF,POWDER_REQUIRES_PREPARATION,false,Dry-powder serving only; volume calculations require a verified preparation/dilution record.
+ABB_GLU_HSS_GHREF,ORAL_LIQUID,true,Oral liquid; respect source route restrictions. Not automatically tube-feed eligible.
+ABB_GLU_MINI_GHREF,SOLID_SNACK,false,Reference/comparison only; exclude from liquid formula volume/rate calculations.
+ABB_GLU_SHAKE_GHREF,ORAL_LIQUID,true,Oral liquid; respect source route restrictions. Not automatically tube-feed eligible.
+ABB_GLU_BAR_GHREF,SOLID_SNACK,false,Reference/comparison only; exclude from liquid formula volume/rate calculations.
+ABB_GLU_SNACK_GHREF,ORAL_LIQUID,true,Oral liquid; respect source route restrictions. Not automatically tube-feed eligible.
+ABB_GLU_TN_GHREF,ORAL_LIQUID,true,Oral liquid; respect source route restrictions. Not automatically tube-feed eligible.
+ABB_PED_STD_GHREF,ENTERAL_OR_ORAL_LIQUID,true,Eligible for volume-based calculations after review/activation.

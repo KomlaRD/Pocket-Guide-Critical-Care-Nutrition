@@ -252,3 +252,26 @@ aside.sidebar .btn { width: 100%; white-space: normal; text-align: center; }
 
 /* M8.3 bedside navigation */
 .sidebar .shiny-options-group{display:grid;gap:.25rem}.sidebar .radio{margin:0}.sidebar .radio label{width:100%;min-height:44px;display:flex;align-items:center;padding:.55rem .75rem;border-radius:12px;line-height:1.25;white-space:normal}.sidebar .radio label:hover{background:var(--md-sys-color-surface-container,#f1f3f4)}.section-intro{max-width:76ch}@media(max-width:768px){.sidebar .radio label{min-height:48px}}
+
+/* M10.1: distinguish clinical-question controls from evidence cards */
+.question-zone{background:var(--md-primary-container,#dce6ff);border:1px solid var(--md-outline,#74777f);border-radius:16px;padding:14px 16px 8px;margin:10px 0 22px;box-shadow:none}.question-zone-label,.evidence-zone-label{font-size:.76rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px}.question-zone label{font-weight:700}.evidence-zone{margin-top:26px;padding-top:16px;border-top:2px solid var(--md-outline,#74777f)}.evidence-zone-label{opacity:.8;margin-bottom:12px}
+/* Existing clinical-question selectors: visually distinct from evidence/content cards */
+.form-group:has(#find_topic),.form-group:has(#guideline_topic),.form-group:has(#obesity_topic),.form-group:has(#ap_topic),.form-group:has(#liver_topic),.form-group:has(#gi_topic),.form-group:has(#special_topic),.form-group:has(#mon_phase),.form-group:has(#safety_topic),.form-group:has(#renal_topic){background:var(--md-primary-container,#dce6ff);border:1px solid var(--md-outline,#74777f);border-radius:16px;padding:14px 16px;margin:10px 0 22px}.form-group:has(#find_topic) label,.form-group:has(#guideline_topic) label,.form-group:has(#obesity_topic) label,.form-group:has(#ap_topic) label,.form-group:has(#liver_topic) label,.form-group:has(#gi_topic) label,.form-group:has(#special_topic) label,.form-group:has(#mon_phase) label,.form-group:has(#safety_topic) label,.form-group:has(#renal_topic) label{font-weight:700}
+
+.comparison-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem;margin:1rem 0;} @media(max-width:900px){.comparison-grid{grid-template-columns:1fr;}}
+
+.nav-scope-legend{display:flex;flex-wrap:wrap;gap:.35rem;margin:.35rem 0 .65rem}
+.nav-scope-chip{font-size:.72rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:.2rem .5rem;border:1px solid var(--md-sys-color-outline-variant,#c4c7c5);border-radius:999px}
+
+.comparison-card{background:var(--md-sys-color-surface-container-lowest,#fff);border:1px solid var(--md-sys-color-outline-variant,#c4c7c5);border-radius:16px;padding:1rem;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.comparison-card-title{margin:0 0 .75rem;font-weight:700}
+
+.developer-note{margin-top:.5rem;font-size:.78rem;line-height:1.35;color:var(--md-sys-color-on-surface-variant,#5f6368)}
+.developer-note a{font-weight:600;text-decoration:none}
+.developer-note a:hover{text-decoration:underline}
+
+.limitation-box{margin:1.25rem 0;padding:1rem 1.1rem;border-left:4px solid var(--md-sys-color-primary,#385b9a);background:var(--md-sys-color-surface-container-low,#f7f8fa);border-radius:0 14px 14px 0}
+.limitation-box>strong{display:block;margin-bottom:.55rem;font-size:1.02rem}
+.limitation-box p{margin:.4rem 0;max-width:82ch}
+.developer-card{margin:1rem 0;padding:1rem 1.1rem;border:1px solid var(--md-sys-color-outline-variant,#c4c7c5);border-radius:14px;background:var(--md-sys-color-surface-container-lowest,#fff)}
+.developer-card h4{margin:0 0 .35rem}.developer-card p{margin:.2rem 0 .4rem}

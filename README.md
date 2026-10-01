@@ -1,3 +1,9 @@
+# M10.1 — Pediatric Critical Care Nutrition & Question/Evidence Layout
+
+M10.1 reopens the RC1 baseline for pediatric-specific critical-care nutrition. The Pediatric Critical Care module keeps pediatric recommendations separate from adult targets and is based primarily on ASPEN/SCCM 2017 and ESPNIC 2020. It covers scope, assessment, EN timing/advancement, energy, protein, formula strategy, hemodynamic support, PN and monitoring.
+
+Clinical-question controls now have a distinct visual treatment from evidence/content cards; pediatric source cards are grouped in a separate evidence zone. No patient documentation is introduced.
+
 # Release Candidate RC1 — Pocket Guide Critical Care
 
 This build closes the M9 clinical-content expansion and is the current release-candidate baseline.
@@ -367,4 +373,81 @@ It also provides a six-step daily cognitive aid covering route, actual delivery,
 M9.9 consolidates the M9 clinical expansion. A new **Find Guidance** bedside index routes common questions to the appropriate pocket-guide module without storing search history or patient information. The index covers EN initiation, shock, EN intolerance, refeeding, micronutrients/electrolytes, energy/protein, obesity, renal/KRT, liver disease, pancreatitis, GI losses/intestinal failure, special ICU situations, PN, monitoring, anthropometry and calculators.
 
 The milestone also adds regression checks that preserve major safety messages and terminology contracts: no full EN advancement in uncontrolled shock, contextual GRV interpretation, no routine protein restriction for hepatic encephalopathy, explicit weight descriptors, continued availability of all active M9 modules, and continued exclusion of the deferred dedicated indirect-calorimetry module.
+
+## M10.2 — Pediatric Calculations & Growth
+
+Adds a pediatric bedside energy/protein calculator for children >1 month to <18 years using Schofield weight-only equations as a guideline-supported fallback when measured REE is unavailable. No stress factor is added in the acute phase. The calculator also displays the ASPEN/SCCM 1.5 g/kg/day minimum protein reference with an explicit reminder that protein and energy are separate decisions and that the protein evidence requires clinical interpretation.
+
+Adds pediatric anthropometry/growth guidance emphasizing age- and sex-appropriate growth references, BMI-for-age rather than adult BMI cutoffs, multidimensional interpretation of growth, and fluid-status limitations in critical illness. Z-scores are deliberately not approximated without validated LMS reference data.
+
+## M10.3 — Pediatric EN Workflow
+
+Adds transient pediatric EN delivery/adequacy calculations using clinician-entered, verified feed composition: daily volume, EN fluid mL/kg, energy delivery and adequacy, protein delivery in g/day and g/kg/day, and protein adequacy. Product composition is never assumed.
+
+Adds a pediatric EN advancement/safety pathway grounded in ESPNIC and ASPEN/SCCM guidance: early EN in eligible children, protocolized stepwise advancement, minimizing avoidable interruptions, fluid-aware formula selection, and explicit hemodynamic safeguards. No universal mL/kg/hour advancement schedule is invented; local pediatric feeding protocols remain necessary.
+
+## M10.4 — Pediatric Quick Reference & Phase-Based Monitoring
+
+Adds a one-screen pediatric critical-care nutrition quick reference covering route/timing, acute-phase energy, protein, PN, hemodynamic feeding and growth/recovery. It retains the explicit >1 month to <18 years ASPEN/SCCM scope boundary and warns against neonatal application.
+
+Adds a non-documenting pediatric monitoring pathway organized by acute/early PICU, stable nutrition advancement, recovery/rehabilitation/growth, and post-interruption/clinical deterioration. A five-step daily review reinforces clinical phase, route, actual delivery, safety/tolerance and growth trajectory. Responses remain transient and are not stored.
+
+## M11.1 — Ghana-Relevant Product Database Foundation
+
+Reopens the product-database work using the attached Abbott Nutrition Product Guide as a manufacturer source. A new `staging/abbott_ghana_2026` batch contains four source-backed candidate formulations: Ensure Original Shake, Ensure Plus Nutrition Shake, Glucerna Shake, and PediaSure Enteral Formula 1.0 Cal.
+
+All records remain inactive and `PENDING_VERIFICATION` because exact equivalence with products currently sold in Ghana has not yet been established. Nutrient data are retained on the manufacturer's exact 8 fl oz/237 mL basis; inequality values are not converted into invented point estimates. The ingestion validator now accepts a traceable uploaded manufacturer PDF with page/version locator rather than requiring an external URL.
+
+The schema remains manufacturer-agnostic so Ghanaian/local formulas can later be added with independent provenance, formulation/preparation details, and verification status before promotion into clinical calculations.
+
+## M11.2 — Expanded Ghana Reference Catalogue
+
+Based on local practice input, Abbott formulations are now treated as Ghana-relevant reference products while retaining exact formulation identities. The catalogue includes Ensure Original, Ensure Plus, standard PediaSure (PediaSure Enteral Formula 1.0 Cal), and all 12 Glucerna products/formulations listed in the source guide.
+
+Glucerna liquid enteral formulas, oral-only shakes, powder and solid snack/bar products are intentionally distinct. `product_use_policy.csv` prevents powder/bars from entering liquid volume/rate calculations and prevents oral-only products from being silently treated as tube feeds. This supports the reality that different Glucerna forms may appear on the Ghanaian market.
+
+The catalogue remains in the existing independent-review/promotion pipeline. Future Ghanaian/local formulas can be added as independent products with their own composition evidence and provenance.
+
+## M11.3 — Product Reference UI & Calculation Integration
+
+Promotes the 15-product Abbott Ghana-reference catalogue into the app runtime and replaces the former demonstration catalogue. Adds a clinician-facing Product Reference page with exact formulation selection, manufacturer reference basis, route/form, core composition, missing-value display, source context, and transient energy/protein target calculations.
+
+Runtime product metadata now includes route, physical form, use class and liquid-volume calculation eligibility. Nutrition Delivery rejects powders and solid products from liquid delivery calculations; oral-only products retain their route identity. The Product Reference calculator can still express energy/protein quantities in the manufacturer's native source unit without implying a liquid rate.
+
+Calculations answer how much selected product would provide a clinician-entered nutrient amount; they do not establish a patient prescription. Missing nutrient values remain unknown rather than zero.
+
+## M11.4 — Formula Comparison & Feeding Prescription Support
+
+Adds neutral side-by-side comparison of three eligible liquid formulas using energy density (kcal/mL) and protein, water, carbohydrate, sodium, potassium, phosphorus and magnesium normalized per 1000 kcal. Missing manufacturer values remain visibly unavailable rather than being imputed.
+
+Adds a continuous-EN support calculator driven by clinician-entered energy target and planned feeding hours. It calculates formula volume (mL/day), rate (mL/h), protein delivered, protein adequacy against a separately entered protein target, and formula water when reported. Energy and protein remain separate prescription decisions.
+
+Only products marked eligible for liquid-volume calculations can enter this workflow; powders and solid snack products remain excluded. The interface does not rank or recommend a formula.
+
+## M11.5 — Product Consolidation & Gastric Bolus Feeding
+
+Consolidates the product workflow and adds a Ghana-relevant gastric bolus calculator. For an eligible liquid formula, clinician-entered daily energy and protein targets and number of feeds/day produce total formula volume, mL/feed, protein/day and per feed, protein adequacy, and formula water when reported.
+
+Bolus is explicitly limited to gastric delivery in this decision-support workflow. Small-bowel selection fails closed. The app intentionally does not hard-code a universal maximum bolus volume: calculated mL/feed must be assessed against individual tolerance, aspiration risk, enteral access and local protocol. Administration time and water flush volume remain clinician-prescribed rather than inferred from formula volume.
+
+Source framing follows nutrition-support references that distinguish bolus, intermittent/gravity, cyclic and continuous administration and call for bolus/intermittent orders to specify feeding number, volume/rate, advancement and water flushes.
+
+## RC2 — Release Readiness Consolidation
+
+RC2 freezes the M11.5 clinical/product feature set and performs a release-level regression pass. No new clinical module is introduced.
+
+Release checks cover adult/pediatric navigation identity, absence of patient identifier fields and runtime patient persistence, pediatric energy guardrails, gastric-only bolus safeguards, product-form restrictions, neutral formula comparison, manufacturer-data catalogue integrity, responsive UI contract, and preservation of all prior milestone tests.
+
+A compact navigation scope legend was added to make the adult, pediatric, calculator and product surfaces easier to distinguish without changing existing navigation keys or clinical content.
+
+## Clinical use and limitations
+
+Pocket Guide Critical Care is an evidence-informed clinical reference and decision-support application. It does not replace individualized nutrition assessment, professional clinical judgment, current manufacturer/product information, institutional policy, or locally applicable protocols. Clinicians remain responsible for verifying the appropriateness and accuracy of information used from the application and for clinical decisions, prescriptions, monitoring, and patient care arising from its use.
+
+Guidelines, evidence, and product formulations may change; clinically consequential information should be checked against current primary sources, manufacturer information, and local policy.
+
+## Developer
+
+**Eric Anku** — Registered Dietitian and developer of Pocket Guide Critical Care.  
+GitHub: https://github.com/KomlaRD
 
