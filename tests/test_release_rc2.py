@@ -48,3 +48,14 @@ def test_adequacy_inputs_and_percent_outputs_are_explicit():
  assert '"protein_prescribed"' in APP and '"protein_delivered"' in APP
  assert 'result_card("Energy adequacy", f"{num(r.value, 1)}%"' in APP
  assert 'result_card("Protein adequacy", f"{num(r.value, 1)}%"' in APP
+
+def test_user_errors_are_clinician_readable():
+ assert "def clinician_error_message(exc):" in APP
+ assert "Please review the input:" in APP
+ assert "The selected product cannot be calculated safely" in APP
+ assert "Check the selected units and conversion direction." in APP
+ assert "Select Male or Female to use the Devine ideal body weight equation." in APP
+def test_safe_result_does_not_return_raw_exception_text():
+ block=APP[APP.index("def safe_result(fn):"):APP.index("def result_card")]
+ assert "return None, str(exc)" not in block
+ assert "clinician_error_message(exc)" in block

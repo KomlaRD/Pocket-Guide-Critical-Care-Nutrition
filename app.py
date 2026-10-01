@@ -53,11 +53,49 @@ def num(value, digits=1):
     return f"{value:,.{digits}f}"
 
 
+def clinician_error_message(exc):
+    """Translate expected calculation/input failures into bedside-readable guidance."""
+    raw = str(exc).strip()
+    low = raw.lower()
+
+    # Never expose an empty or implementation-oriented exception in the user layer.
+    if not raw:
+        return "Please review the entered values and try the calculation again."
+
+    replacements = (
+        ("must be greater than 0", "must be greater than zero"),
+        ("must be greater than zero", "must be greater than zero"),
+        ("cannot be negative", "cannot be less than zero"),
+        ("is not eligible for liquid delivery calculations", "cannot be used for this liquid-feeding calculation"),
+        ("is not eligible for continuous liquid feeding calculations", "cannot be used for this continuous-feeding calculation"),
+        ("is not eligible for liquid bolus calculations", "cannot be used for this bolus-feeding calculation"),
+        ("is not eligible for liquid formula comparison", "cannot be used in this liquid-formula comparison"),
+        ("requires a volume-based product", "requires a liquid product with a verified mL basis"),
+    )
+    msg = raw
+    for technical, clinical in replacements:
+        msg = msg.replace(technical, clinical)
+
+    # Known internal/data errors should not leak IDs, units plumbing, or exception language.
+    if any(token in low for token in ("unknown nutrition product", "unit conversion is required", "basis unit mismatch")):
+        return "The selected product cannot be calculated safely with the available formulation data. Confirm the exact product and use a product with a verified composition basis."
+
+    if "unsupported conversion" in low or "direction must be" in low:
+        return "That conversion is not available. Check the selected units and conversion direction."
+
+    if "sex must be" in low:
+        return "Select Male or Female to use the Devine ideal body weight equation."
+
+    if "risk criteria must be" in low:
+        return "Select one of the available refeeding-risk categories before continuing."
+
+    return f"Please review the input: {msg}"
+
 def safe_result(fn):
     try:
         return fn(), None
     except (ValueError, TypeError, ZeroDivisionError) as exc:
-        return None, str(exc)
+        return None, clinician_error_message(exc)
 
 
 def result_card(label, value, unit, note=""):
@@ -681,7 +719,7 @@ with ui.panel_conditional("input.page === 'obesity'"):
             def obesity_abw_result():
                 actual=float(input.ob_actual()); ideal=float(input.ob_ideal()); f=float(input.ob_fraction())
                 if actual < ideal:
-                    return ui.div("Actual weight is below the entered ideal/reference weight; this obesity adjusted-weight calculation is not applicable.",class_="error-box")
+                    return ui.div("Actual weight is below the entered ideal/reference weight. Adjusted body weight is therefore not appropriate here. Review the entered weights or use the clinically appropriate weight descriptor.",class_="error-box")
                 value=ideal+f*(actual-ideal)
                 return result_card("Adjusted body weight",num(value,1),"kg",f"IBW + {f:.0%} × (actual weight − IBW)")
             ui.p("This calculator does not decide whether adjusted weight is appropriate. Use it only when the selected guideline/method calls for this ESPEN fallback.",class_="small-note")
