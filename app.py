@@ -1666,7 +1666,7 @@ with ui.panel_conditional("input.page === 'anthro'"):
     with ui.card(class_="anthropredictor-card"):
         ui.card_header("AnthroPredictor — External Anthropometric Estimation")
         ui.p("Open AnthroPredictor in a separate tab for anthropometric prediction. Review the model’s intended population and limitations before applying estimates clinically.")
-        ui.a("Open AnthroPredictor ↗",href="https://01958b58-74ab-f024-a783-72fb6c17943b.share.connect.posit.cloud/",target="_blank",rel="noopener noreferrer",class_="anthropredictor-link",aria_label="Open AnthroPredictor in a new tab")
+        ui.a("Open AnthroPredictor ↗",href="https://KomlaRD-anthro-predictor.share.connect.posit.cloud",target="_blank",rel="noopener noreferrer",class_="anthropredictor-link",aria_label="Open AnthroPredictor in a new tab")
 
     with ui.card():
         ui.card_header("BMI & Weight Change")

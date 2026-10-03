@@ -102,3 +102,7 @@ def test_rc28_mobile_navigation_has_touch_target_rules():
  assert "min-height:50px" in css
  for label in ("GUIDANCE","CLINICAL CONDITIONS","NUTRITION SUPPORT","CALCULATORS","PRODUCTS"):
   assert label in css
+
+def test_anthropredictor_uses_current_public_link():
+ assert "https://KomlaRD-anthro-predictor.share.connect.posit.cloud" in APP
+ assert "01958b58-74ab-f024-a783-72fb6c17943b" not in APP
