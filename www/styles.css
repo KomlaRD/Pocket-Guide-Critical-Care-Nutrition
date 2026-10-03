@@ -275,3 +275,31 @@ aside.sidebar .btn { width: 100%; white-space: normal; text-align: center; }
 .limitation-box p{margin:.4rem 0;max-width:82ch}
 .developer-card{margin:1rem 0;padding:1rem 1.1rem;border:1px solid var(--md-sys-color-outline-variant,#c4c7c5);border-radius:14px;background:var(--md-sys-color-surface-container-lowest,#fff)}
 .developer-card h4{margin:0 0 .35rem}.developer-card p{margin:.2rem 0 .4rem}
+
+.input-prompt{margin:.5rem 0;padding:.65rem .8rem;border-radius:10px;background:var(--md-sys-color-surface-container-low,#f7f8fa);color:var(--md-sys-color-on-surface-variant,#5f6368);font-size:.92rem}
+
+/* RC2.8 adaptive information architecture */
+.nav-section-label{font-size:.72rem;font-weight:800;letter-spacing:.08em;color:var(--md-sys-color-on-surface-variant,#5f6368);margin:.75rem .75rem .25rem}
+.sidebar .shiny-options-group .radio:nth-child(5),
+.sidebar .shiny-options-group .radio:nth-child(10),
+.sidebar .shiny-options-group .radio:nth-child(16),
+.sidebar .shiny-options-group .radio:nth-child(20),
+.sidebar .shiny-options-group .radio:nth-child(23){margin-top:1.65rem;position:relative}
+.sidebar .shiny-options-group .radio:nth-child(5)::before,
+.sidebar .shiny-options-group .radio:nth-child(10)::before,
+.sidebar .shiny-options-group .radio:nth-child(16)::before,
+.sidebar .shiny-options-group .radio:nth-child(20)::before,
+.sidebar .shiny-options-group .radio:nth-child(23)::before{position:absolute;top:-1.25rem;left:.75rem;font-size:.68rem;font-weight:800;letter-spacing:.08em;color:var(--md-sys-color-on-surface-variant,#5f6368)}
+.sidebar .shiny-options-group .radio:nth-child(5)::before{content:"GUIDANCE"}
+.sidebar .shiny-options-group .radio:nth-child(10)::before{content:"CLINICAL CONDITIONS"}
+.sidebar .shiny-options-group .radio:nth-child(16)::before{content:"NUTRITION SUPPORT"}
+.sidebar .shiny-options-group .radio:nth-child(20)::before{content:"CALCULATORS"}
+.sidebar .shiny-options-group .radio:nth-child(23)::before{content:"PRODUCTS"}
+.sidebar .shiny-options-group .radio:nth-child(4) label{font-weight:750;border:1px solid var(--md-sys-color-outline-variant,#c4c7c5)}
+@media(max-width:767px){
+  .sidebar{max-width:min(88vw,360px)!important}
+  .sidebar .brand-lockup{position:sticky;top:0;z-index:3;background:var(--bs-body-bg,#fff);padding-bottom:.5rem}
+  .sidebar .shiny-options-group{padding-bottom:1rem}
+  .sidebar .radio label{min-height:50px;padding:.7rem .85rem;font-size:.96rem}
+  .nav-section-label{margin-top:.35rem}
+}

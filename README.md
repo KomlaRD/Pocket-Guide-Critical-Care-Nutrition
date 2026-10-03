@@ -451,3 +451,7 @@ Guidelines, evidence, and product formulations may change; clinically consequent
 **Eric Anku** — Registered Dietitian and developer of Pocket Guide Critical Care.  
 GitHub: https://github.com/KomlaRD
 
+
+
+## RC2.8 — Adaptive Navigation & Information Architecture
+Navigation is ordered around clinicians' conceptual tasks: quick access, guidance, clinical conditions, nutrition support, calculators, and products. Pediatric Critical Care remains a prominent distinct pathway. Narrow screens use larger touch targets and a compact sidebar surface; clinical content and calculation logic are unchanged.

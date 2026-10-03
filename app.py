@@ -46,6 +46,7 @@ NUTRIENT_UNITS = {
     "PHOSPHORUS": "mg", "MAGNESIUM": "mg",
 }
 PRODUCT_CHOICES = PRODUCT_DB.choices()
+LIQUID_CHOICES = {pid:p.name for pid,p in PRODUCT_DB.products.items() if p.volume_calculation_eligible and p.basis_unit=="mL"}
 REFERENCES = ReferenceLibrary(Path(__file__).parent / "data" / "reference")
 MICRONUTRIENTS = load_micronutrients(Path(__file__).parent / "data" / "reference" / "espen_micronutrients.csv")
 MICRONUTRIENT_BY_ID = {x.id: x for x in MICRONUTRIENTS}
@@ -53,43 +54,77 @@ def num(value, digits=1):
     return f"{value:,.{digits}f}"
 
 
+def missing_inputs(*values):
+    """True while one or more transient UI fields are empty."""
+    return any(value is None or (isinstance(value, str) and not value.strip()) for value in values)
+
+
+def enter_prompt(*field_names):
+    names = [name for name in field_names if name]
+    if not names:
+        return ui.div("Complete the required fields to calculate.", class_="input-prompt")
+    if len(names) == 1:
+        text = f"Enter {names[0]} to calculate."
+    else:
+        text = "Complete the required fields to calculate: " + ", ".join(names) + "."
+    return ui.div(text, class_="input-prompt")
+
+
 def clinician_error_message(exc):
-    """Translate expected calculation/input failures into bedside-readable guidance."""
-    raw = str(exc).strip()
-    low = raw.lower()
+    """Return a clinician-readable message without exposing Python exception text."""
+    raw = str(exc).strip().lower()
 
-    # Never expose an empty or implementation-oriented exception in the user layer.
+    # Map expected calculation/data problems to bedside language. Raw exception
+    # text is deliberately never returned to the user interface.
     if not raw:
-        return "Please review the entered values and try the calculation again."
-
-    replacements = (
-        ("must be greater than 0", "must be greater than zero"),
-        ("must be greater than zero", "must be greater than zero"),
-        ("cannot be negative", "cannot be less than zero"),
-        ("is not eligible for liquid delivery calculations", "cannot be used for this liquid-feeding calculation"),
-        ("is not eligible for continuous liquid feeding calculations", "cannot be used for this continuous-feeding calculation"),
-        ("is not eligible for liquid bolus calculations", "cannot be used for this bolus-feeding calculation"),
-        ("is not eligible for liquid formula comparison", "cannot be used in this liquid-formula comparison"),
-        ("requires a volume-based product", "requires a liquid product with a verified mL basis"),
-    )
-    msg = raw
-    for technical, clinical in replacements:
-        msg = msg.replace(technical, clinical)
-
-    # Known internal/data errors should not leak IDs, units plumbing, or exception language.
-    if any(token in low for token in ("unknown nutrition product", "unit conversion is required", "basis unit mismatch")):
-        return "The selected product cannot be calculated safely with the available formulation data. Confirm the exact product and use a product with a verified composition basis."
-
-    if "unsupported conversion" in low or "direction must be" in low:
+        return "Please review the entered values and try again."
+    if "unknown nutrition product" in raw or "basis unit mismatch" in raw or "unit conversion is required" in raw:
+        return "The selected product cannot be calculated safely with the available formulation data. Confirm the exact product or choose another verified formulation."
+    if "not eligible for continuous" in raw:
+        return "This product cannot be used for the continuous-feeding calculation. Select a liquid enteral formula with a verified volume basis."
+    if "not eligible for liquid bolus" in raw or "bolus feeding calculation requires" in raw:
+        return "This product cannot be used for the bolus-feeding calculation. Select a liquid enteral formula with a verified volume basis."
+    if "not eligible for liquid formula comparison" in raw:
+        return "This product cannot be included in the liquid-formula comparison. Select a liquid formulation with a verified volume basis."
+    if "not eligible for liquid delivery" in raw:
+        return "This product cannot be used for the liquid-delivery calculation. Select a liquid formulation with a verified volume basis."
+    if "small-bowel" in raw and "bolus" in raw:
+        return "Bolus feeding is intended for gastric delivery in this tool. For small-bowel feeding, use an appropriate continuous or intermittent regimen according to the enteral access and local protocol."
+    if "feeds per day" in raw:
+        return "Enter the planned number of feeds per day as a whole number of at least 1."
+    if "feeding hours" in raw or "feeding duration" in raw or "duration cannot exceed 24" in raw:
+        return "Enter a feeding duration greater than 0 and no more than 24 hours per day."
+    if "protein target" in raw:
+        return "Enter a protein target greater than zero."
+    if "energy target" in raw:
+        return "Enter an energy target greater than zero."
+    if "dosing weight" in raw or "weight must be greater" in raw:
+        return "Enter a valid body weight greater than zero."
+    if "delivered amount cannot be negative" in raw:
+        return "The delivered amount cannot be less than zero. Check the entered delivery value."
+    if "prescribed amount" in raw:
+        return "Enter a prescribed amount greater than zero."
+    if "cannot be negative" in raw or "cannot be less than zero" in raw:
+        return "One or more entered values are below zero. Check the highlighted clinical inputs and try again."
+    if "unsupported conversion" in raw or "direction must be" in raw:
         return "That conversion is not available. Check the selected units and conversion direction."
-
-    if "sex must be" in low:
+    if "sex must be" in raw:
         return "Select Male or Female to use the Devine ideal body weight equation."
-
-    if "risk criteria must be" in low:
+    if "risk criteria must be" in raw:
         return "Select one of the available refeeding-risk categories before continuing."
-
-    return f"Please review the input: {msg}"
+    if "correction factor" in raw:
+        return "Enter an adjusted-weight correction factor between 0 and 1."
+    if "minimum dose cannot exceed maximum dose" in raw:
+        return "The minimum dose is higher than the maximum dose. Review the entered dose range."
+    if "protein-derived energy must be less than total energy" in raw:
+        return "Protein-derived energy is equal to or greater than total energy. Review the entered total energy and protein values."
+    if "water content must be between" in raw:
+        return "Enter formula water content between 0 and 100 mL per 100 mL."
+    if "absolute ionic valence" in raw:
+        return "Enter the absolute ionic valence as a number greater than zero."
+    if "at least one pn macronutrient" in raw:
+        return "Enter an amount greater than zero for at least one PN macronutrient."
+    return "The calculation could not be completed with the values entered. Review the clinical inputs and try again."
 
 def safe_result(fn):
     try:
@@ -113,18 +148,35 @@ with ui.sidebar(open="desktop"):
         ui.div(ui.h4("Pocket Guide"), ui.p("CRITICAL CARE NUTRITION", class_="brand-subtitle")),
         class_="brand-lockup",
     )
-    ui.div(
-        ui.span("Adult", class_="nav-scope-chip"), ui.span("Pediatric", class_="nav-scope-chip"),
-        ui.span("Tools", class_="nav-scope-chip"), ui.span("Products", class_="nav-scope-chip"),
-        class_="nav-scope-legend",
-    )
+    ui.div("QUICK ACCESS", class_="nav-section-label")
     ui.input_radio_buttons(
-        "page", "Pocket Guide",
-        {"home":"Home","find":"Find Guidance","guidelines":"Critical Care Guidelines","refeeding":"Refeeding Syndrome",
-         "micronutrients":"Micronutrients","reference":"Quick Reference","requirements":"Energy & Protein",
-         "support":"Nutrition Support","safety":"Safety","renal":"Renal & KRT","obesity":"Obesity in ICU","pancreatitis":"Acute Pancreatitis","liver":"Liver Disease","gi_losses":"GI Losses & Intestinal Failure","special_icu":"Trauma, Burns & Sepsis","monitoring_check":"Monitoring Checklist","pediatric":"Pediatric Critical Care","anthro":"Anthropometry",
-         "toolkit":"Calculators & Conversions","metabolic":"Metabolic Calculators",
-         "adequacy":"Nutrition Adequacy","products":"Product Reference","compare_products":"Compare Formulas","delivery":"Nutrition Delivery"},
+        "page", None,
+        {
+            "home":"Home",
+            "find":"Find Guidance",
+            "reference":"Quick Reference",
+            "pediatric":"Pediatric Critical Care",
+            "guidelines":"Critical Care Guidelines",
+            "refeeding":"Refeeding Syndrome",
+            "micronutrients":"Micronutrients",
+            "safety":"Safety",
+            "monitoring_check":"Monitoring Checklist",
+            "renal":"Renal & KRT",
+            "obesity":"Obesity in ICU",
+            "pancreatitis":"Acute Pancreatitis",
+            "liver":"Liver Disease",
+            "gi_losses":"GI Losses & Intestinal Failure",
+            "special_icu":"Trauma, Burns & Sepsis",
+            "requirements":"Energy & Protein",
+            "support":"Nutrition Support",
+            "adequacy":"Nutrition Adequacy",
+            "delivery":"Nutrition Delivery",
+            "anthro":"Anthropometry",
+            "toolkit":"Calculators & Conversions",
+            "metabolic":"Metabolic Calculators",
+            "products":"Product Reference",
+            "compare_products":"Compare Formulas",
+        },
         selected="home",
     )
     ui.p("Reference and bedside calculation tool. No patient identifiers or records are collected.", class_="small-note")
@@ -717,6 +769,8 @@ with ui.panel_conditional("input.page === 'obesity'"):
                 ui.input_numeric("ob_fraction","Excess-weight fraction",0.25,min=0.20,max=0.25,step=0.01)
             @render.ui
             def obesity_abw_result():
+                if missing_inputs(input.ob_actual(), input.ob_ideal(), input.ob_fraction()):
+                    return enter_prompt("actual weight, ideal/reference weight, and adjustment factor")
                 actual=float(input.ob_actual()); ideal=float(input.ob_ideal()); f=float(input.ob_fraction())
                 if actual < ideal:
                     return ui.div("Actual weight is below the entered ideal/reference weight. Adjusted body weight is therefore not appropriate here. Review the entered weights or use the clinically appropriate weight descriptor.",class_="error-box")
@@ -1425,6 +1479,8 @@ with ui.panel_conditional("input.page === 'pediatric'"):
             ui.input_numeric("ped_weight","Weight (kg)",value=20,min=0.5,max=250,step=0.1)
             @render.ui
             def ped_calc_result():
+                if missing_inputs(input.ped_age(), input.ped_weight(), input.ped_sex()):
+                    return enter_prompt("age, weight, and sex")
                 age=float(input.ped_age()); w=float(input.ped_weight()); sex=input.ped_sex()
                 if age < (1/12) or age >= 18 or w <= 0:
                     return ui.div("This calculator is restricted to children >1 month and <18 years with a valid weight.",class_="warning-box")
@@ -1462,6 +1518,9 @@ with ui.panel_conditional("input.page === 'pediatric'"):
             ui.input_numeric("ped_en_protein_goal","Current protein goal (g/day)",value=30,min=0.1,max=500,step=0.5)
             @render.ui
             def ped_en_result():
+                values=(input.ped_en_weight(),input.ped_en_rate(),input.ped_en_hours(),input.ped_en_kcal100(),input.ped_en_prot100(),input.ped_en_energy_goal(),input.ped_en_protein_goal())
+                if missing_inputs(*values):
+                    return enter_prompt("weight, EN delivery, feed composition, and current goals")
                 w=float(input.ped_en_weight()); rate=float(input.ped_en_rate()); hrs=float(input.ped_en_hours())
                 kcal100=float(input.ped_en_kcal100()); prot100=float(input.ped_en_prot100())
                 eg=float(input.ped_en_energy_goal()); pg=float(input.ped_en_protein_goal())
@@ -1617,11 +1676,17 @@ with ui.panel_conditional("input.page === 'anthro'"):
             ui.input_numeric("usual_weight","Usual weight (kg)",80,min=0.1,step=0.1)
         @render.ui
         def anthro_results():
+            if missing_inputs(input.anth_weight(), input.anth_height(), input.usual_weight()):
+                return enter_prompt("current weight, height, and usual weight")
             b,e=safe_result(lambda:bmi(input.anth_weight(),input.anth_height()))
-            w,e2=safe_result(lambda:percent_weight_loss(input.usual_weight(),input.anth_weight()))
-            if e or e2:return ui.div(e or e2,class_="error-box")
-            note=w.warnings[0] if w.warnings else "Positive value indicates loss from usual weight."
-            return ui.div(result_card("BMI",num(b.value,1),b.unit,b.method),result_card("Weight change",num(w.value,1),w.unit,note),class_="result-grid")
+            usual=float(input.usual_weight()); current=float(input.anth_weight())
+            if usual <= 0:
+                return ui.div("Usual weight must be greater than zero. Check the entered usual weight.",class_="error-box")
+            change_pct=(current-usual)/usual*100
+            signed_change=f"{change_pct:+.1f}"
+            note="Negative = weight loss; positive = weight gain."
+            if e:return ui.div(e,class_="error-box")
+            return ui.div(result_card("BMI",num(b.value,1),b.unit,b.method),result_card("Weight change",signed_change,"%",note),class_="result-grid")
 
     with ui.card():
         ui.card_header("Dosing-Weight Concepts")
@@ -1741,6 +1806,64 @@ with ui.panel_conditional("input.page === 'support'"):
 
 
 
+    # Formula-specific feeding regimen tools
+    with ui.card():
+        ui.card_header("Continuous EN from clinician-entered target")
+        ui.input_select("feed_product","Liquid formula",LIQUID_CHOICES,selected="ABB_GLU_15_GHREF")
+        with ui.layout_columns(col_widths=(4,4,4)):
+            ui.input_numeric("feed_energy","Energy target (kcal/day)",1800,min=1,step=50)
+            ui.input_numeric("feed_protein","Protein target (g/day)",90,min=0.1,step=1)
+            ui.input_numeric("feed_hours","Planned feeding time (hours/day)",24,min=1,max=24,step=1)
+        ui.p("Energy and protein targets are clinician-entered and remain separate decisions. The rate below is derived from the energy target; protein adequacy is then checked independently.",class_="small-note")
+    @render.ui
+    def continuous_feeding_results():
+        def compute(): return continuous_feeding_from_energy(PRODUCT_DB,input.feed_product(),input.feed_energy(),input.feed_hours(),input.feed_protein())
+        plan,err=safe_result(compute)
+        if err:return ui.div(err,class_="error-box")
+        protein_text="Unknown" if plan.protein_g_day is None else num(plan.protein_g_day,1)
+        adequacy_text="Cannot assess: protein composition unavailable." if plan.protein_adequacy_percent is None else f"{plan.protein_adequacy_percent:.1f}% of the separately entered protein target."
+        water_text="Unknown / not reported" if plan.water_ml_day is None else f"{num(plan.water_ml_day,0)} mL/day"
+        return ui.div(
+            ui.div(
+                result_card("Formula volume",num(plan.volume_ml_day,0),"mL/day",f"Calculated from {num(plan.target_energy_kcal,0)} kcal/day"),
+                result_card("Continuous rate",num(plan.rate_ml_hr,1),"mL/h",f"If delivered over {num(plan.hours_per_day,0)} h/day"),
+                result_card("Protein delivered",protein_text,"g/day" if plan.protein_g_day is not None else "",adequacy_text),
+                result_card("Formula water",water_text,"","Formula water only; not total fluid intake"),
+                class_="result-grid"),
+            ui.div(ui.strong("Interpretation: "),"Meeting the energy target does not mean the protein target is met. Review both before changing the prescription.",class_="warning-box"),
+        )
+
+    with ui.card():
+        ui.card_header("Gastric bolus feeding")
+        ui.p("For patients selected for gastric bolus feeding, divide the clinician-entered daily target into a practical number of feeds. The calculated volume per feed is not an automatic tolerance limit.",class_="small-note")
+        ui.input_select("bolus_product","Liquid formula",LIQUID_CHOICES,selected="ABB_ENSURE_PLUS_GHREF")
+        with ui.layout_columns(col_widths=(3,3,3,3)):
+            ui.input_numeric("bolus_energy","Energy target (kcal/day)",1800,min=1,step=50)
+            ui.input_numeric("bolus_protein","Protein target (g/day)",90,min=0.1,step=1)
+            ui.input_numeric("bolus_feeds","Feeds per day",6,min=1,max=12,step=1)
+            ui.input_select("bolus_site","Delivery site",{"GASTRIC":"Gastric","SMALL_BOWEL":"Small bowel"},selected="GASTRIC")
+        ui.p("Administration time and water flush volume should be prescribed according to enteral access, tolerance, fluid requirements and local protocol; they are not inferred from formula volume.",class_="small-note")
+    @render.ui
+    def bolus_feeding_results():
+        def compute(): return bolus_feeding_from_energy(PRODUCT_DB,input.bolus_product(),input.bolus_energy(),input.bolus_feeds(),input.bolus_protein(),input.bolus_site())
+        plan,err=safe_result(compute)
+        if err:return ui.div(err,class_="error-box")
+        pday="Unknown" if plan.protein_g_day is None else f"{num(plan.protein_g_day,1)} g/day"
+        pfeed="Unknown" if plan.protein_g_feed is None else f"{num(plan.protein_g_feed,1)} g/feed"
+        water="Unknown / not reported" if plan.water_ml_day is None else f"{num(plan.water_ml_day,0)} mL/day · {num(plan.water_ml_feed,0)} mL/feed"
+        adequacy="Cannot assess protein adequacy." if plan.protein_adequacy_percent is None else f"{plan.protein_adequacy_percent:.1f}% of separate protein target"
+        return ui.div(
+            ui.div(
+                result_card("Formula volume",num(plan.volume_ml_day,0),"mL/day",f"{plan.feeds_per_day} feeds/day"),
+                result_card("Volume per feed",num(plan.volume_ml_feed,0),"mL/feed","Assess individual gastric tolerance; not a universal safe-volume threshold"),
+                result_card("Protein",pday,"",f"{pfeed} · {adequacy}"),
+                result_card("Formula water",water,"","Does not include prescribed water flushes or other fluids"),
+                class_="result-grid"),
+            ui.div(ui.strong("Bolus safety: "),"Use for gastric delivery only. Review aspiration risk, GI tolerance, positioning and the enteral access. Large boluses may worsen intolerance; do not use this calculated volume as an automatic administration order.",class_="warning-box"),
+        )
+
+
+
 with ui.panel_conditional("input.page === 'products'"):
     ui.h2("Product Reference")
     ui.p("Compare Ghana-relevant Abbott nutrition products and perform transient formulation-specific calculations. Confirm the exact product/form on the pack before applying results.", class_="section-intro")
@@ -1788,9 +1911,9 @@ with ui.panel_conditional("input.page === 'products'"):
 
 
 with ui.panel_conditional("input.page === 'compare_products'"):
-    ui.h2("Formula Comparison & Feeding Support")
-    ui.p("Compare exact liquid formulations and translate a clinician-entered energy target into a continuous EN volume and rate. This tool compares products; it does not select a preferred formula or determine the patient's prescription.", class_="section-intro")
-    liquid_choices={pid:p.name for pid,p in PRODUCT_DB.products.items() if p.volume_calculation_eligible and p.basis_unit=="mL"}
+    ui.h2("Formula Comparison")
+    ui.p("Compare exact liquid formulations on a common energy basis. This tool supports product comparison only; it does not select a preferred formula or determine a feeding regimen.", class_="section-intro")
+    liquid_choices=LIQUID_CHOICES
     with ui.div(class_="question-zone"):
         ui.h4("Select formulas")
         with ui.layout_columns(col_widths=(4,4,4)):
@@ -1818,65 +1941,9 @@ with ui.panel_conditional("input.page === 'compare_products'"):
                 class_="comparison-card",
             ))
         return ui.div(*cards,class_="comparison-grid")
-    with ui.card():
-        ui.card_header("Continuous EN from clinician-entered target")
-        ui.input_select("feed_product","Liquid formula",liquid_choices,selected="ABB_GLU_15_GHREF")
-        with ui.layout_columns(col_widths=(4,4,4)):
-            ui.input_numeric("feed_energy","Energy target (kcal/day)",1800,min=1,step=50)
-            ui.input_numeric("feed_protein","Protein target (g/day)",90,min=0.1,step=1)
-            ui.input_numeric("feed_hours","Planned feeding time (hours/day)",24,min=1,max=24,step=1)
-        ui.p("Energy and protein targets are clinician-entered and remain separate decisions. The rate below is derived from the energy target; protein adequacy is then checked independently.",class_="small-note")
-    @render.ui
-    def continuous_feeding_results():
-        def compute(): return continuous_feeding_from_energy(PRODUCT_DB,input.feed_product(),input.feed_energy(),input.feed_hours(),input.feed_protein())
-        plan,err=safe_result(compute)
-        if err:return ui.div(err,class_="error-box")
-        protein_text="Unknown" if plan.protein_g_day is None else num(plan.protein_g_day,1)
-        adequacy_text="Cannot assess: protein composition unavailable." if plan.protein_adequacy_percent is None else f"{plan.protein_adequacy_percent:.1f}% of the separately entered protein target."
-        water_text="Unknown / not reported" if plan.water_ml_day is None else f"{num(plan.water_ml_day,0)} mL/day"
-        return ui.div(
-            ui.div(
-                result_card("Formula volume",num(plan.volume_ml_day,0),"mL/day",f"Calculated from {num(plan.target_energy_kcal,0)} kcal/day"),
-                result_card("Continuous rate",num(plan.rate_ml_hr,1),"mL/h",f"If delivered over {num(plan.hours_per_day,0)} h/day"),
-                result_card("Protein delivered",protein_text,"g/day" if plan.protein_g_day is not None else "",adequacy_text),
-                result_card("Formula water",water_text,"","Formula water only; not total fluid intake"),
-                class_="result-grid"),
-            ui.div(ui.strong("Interpretation: "),"Meeting the energy target does not mean the protein target is met. Review both before changing the prescription.",class_="warning-box"),
-        )
-
-    with ui.card():
-        ui.card_header("Gastric bolus feeding")
-        ui.p("For patients selected for gastric bolus feeding, divide the clinician-entered daily target into a practical number of feeds. The calculated volume per feed is not an automatic tolerance limit.",class_="small-note")
-        ui.input_select("bolus_product","Liquid formula",liquid_choices,selected="ABB_ENSURE_PLUS_GHREF")
-        with ui.layout_columns(col_widths=(3,3,3,3)):
-            ui.input_numeric("bolus_energy","Energy target (kcal/day)",1800,min=1,step=50)
-            ui.input_numeric("bolus_protein","Protein target (g/day)",90,min=0.1,step=1)
-            ui.input_numeric("bolus_feeds","Feeds per day",6,min=1,max=12,step=1)
-            ui.input_select("bolus_site","Delivery site",{"GASTRIC":"Gastric","SMALL_BOWEL":"Small bowel"},selected="GASTRIC")
-        ui.p("Administration time and water flush volume should be prescribed according to enteral access, tolerance, fluid requirements and local protocol; they are not inferred from formula volume.",class_="small-note")
-    @render.ui
-    def bolus_feeding_results():
-        def compute(): return bolus_feeding_from_energy(PRODUCT_DB,input.bolus_product(),input.bolus_energy(),input.bolus_feeds(),input.bolus_protein(),input.bolus_site())
-        plan,err=safe_result(compute)
-        if err:return ui.div(err,class_="error-box")
-        pday="Unknown" if plan.protein_g_day is None else f"{num(plan.protein_g_day,1)} g/day"
-        pfeed="Unknown" if plan.protein_g_feed is None else f"{num(plan.protein_g_feed,1)} g/feed"
-        water="Unknown / not reported" if plan.water_ml_day is None else f"{num(plan.water_ml_day,0)} mL/day · {num(plan.water_ml_feed,0)} mL/feed"
-        adequacy="Cannot assess protein adequacy." if plan.protein_adequacy_percent is None else f"{plan.protein_adequacy_percent:.1f}% of separate protein target"
-        return ui.div(
-            ui.div(
-                result_card("Formula volume",num(plan.volume_ml_day,0),"mL/day",f"{plan.feeds_per_day} feeds/day"),
-                result_card("Volume per feed",num(plan.volume_ml_feed,0),"mL/feed","Assess individual gastric tolerance; not a universal safe-volume threshold"),
-                result_card("Protein",pday,"",f"{pfeed} · {adequacy}"),
-                result_card("Formula water",water,"","Does not include prescribed water flushes or other fluids"),
-                class_="result-grid"),
-            ui.div(ui.strong("Bolus safety: "),"Use for gastric delivery only. Review aspiration risk, GI tolerance, positioning and the enteral access. Large boluses may worsen intolerance; do not use this calculated volume as an automatic administration order.",class_="warning-box"),
-        )
-
     ui.div(
         ui.div("EVIDENCE & SOURCE CONTEXT",class_="evidence-zone-label"),
         ui.div(ui.h4("Product composition source"),ui.p("Abbott Nutrition Adult Nutrition Product Guide. Exact formulation identities and manufacturer composition bases are retained in the product catalogue."),class_="evidence-card"),
-        ui.div(ui.h4("Bolus administration context"),ui.p("Nutrition-support references distinguish bolus, intermittent/gravity, cyclic and continuous EN. Bolus administration is a gastric method; the schedule should specify volume per feeding, number of feeds, administration time and water flushes. Patient tolerance and aspiration risk remain clinical considerations."),class_="evidence-card"),
         class_="evidence-zone",
     )
 

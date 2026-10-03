@@ -4,7 +4,7 @@ def test_navigation_population_separation():
  assert '"guidelines":"Critical Care Guidelines"' in APP
  assert '"pediatric":"Pediatric Critical Care"' in APP
  assert '"compare_products":"Compare Formulas"' in APP
- assert "nav-scope-legend" in APP
+ assert "nav-section-label" in APP
 def test_no_demo_catalogue_copy():
  assert "demonstration data only" not in APP
  assert "DEMO_" not in APP
@@ -51,7 +51,7 @@ def test_adequacy_inputs_and_percent_outputs_are_explicit():
 
 def test_user_errors_are_clinician_readable():
  assert "def clinician_error_message(exc):" in APP
- assert "Please review the input:" in APP
+ assert "The calculation could not be completed with the values entered." in APP
  assert "The selected product cannot be calculated safely" in APP
  assert "Check the selected units and conversion direction." in APP
  assert "Select Male or Female to use the Devine ideal body weight equation." in APP
@@ -59,3 +59,46 @@ def test_safe_result_does_not_return_raw_exception_text():
  block=APP[APP.index("def safe_result(fn):"):APP.index("def result_card")]
  assert "return None, str(exc)" not in block
  assert "clinician_error_message(exc)" in block
+
+def test_compare_formulas_is_comparison_only():
+ sec=APP[APP.index("input.page === 'compare_products'"):APP.index("input.page === 'delivery'")]
+ assert 'ui.h2("Formula Comparison")' in sec
+ assert "Continuous EN from clinician-entered target" not in sec
+ assert "Gastric bolus feeding" not in sec
+def test_feeding_regimen_tools_are_under_nutrition_support():
+ sec=APP[APP.index("input.page === 'support'"):APP.index("input.page === 'products'")]
+ assert "Continuous EN from clinician-entered target" in sec
+ assert "Gastric bolus feeding" in sec
+def test_weight_change_uses_signed_gain_loss_convention():
+ sec=APP[APP.index("input.page === 'anthro'"):APP.index("input.page === 'support'")]
+ assert "change_pct=(current-usual)/usual*100" in sec
+ assert 'signed_change=f"{change_pct:+.1f}"' in sec
+ assert "Negative = weight loss; positive = weight gain." in sec
+def test_clinician_error_adapter_never_returns_raw_exception_message():
+ sec=APP[APP.index("def clinician_error_message"):APP.index("def safe_result")]
+ assert "return f\"Please review the input: {msg}\"" not in sec
+ assert "return raw" not in sec
+ assert "The calculation could not be completed with the values entered." in sec
+
+def test_cleared_anthropometry_fields_do_not_expose_python_errors():
+ sec=APP[APP.index("def anthro_results():"):APP.index("with ui.card():", APP.index("def anthro_results():"))]
+ assert "missing_inputs(input.anth_weight(), input.anth_height(), input.usual_weight())" in sec
+ assert 'enter_prompt("current weight, height, and usual weight")' in sec
+def test_direct_numeric_cast_renderers_guard_empty_inputs():
+ assert "def missing_inputs(*values):" in APP
+ assert 'enter_prompt("actual weight, ideal/reference weight, and adjustment factor")' in APP
+ assert 'enter_prompt("age, weight, and sex")' in APP
+ assert 'enter_prompt("weight, EN delivery, feed composition, and current goals")' in APP
+
+def test_rc28_navigation_has_clinical_concept_order():
+ nav=APP[APP.index('"home":"Home"'):APP.index('selected="home"', APP.index('"home":"Home"'))]
+ order=['"home":"Home"','"find":"Find Guidance"','"reference":"Quick Reference"','"pediatric":"Pediatric Critical Care"','"guidelines":"Critical Care Guidelines"','"renal":"Renal & KRT"','"requirements":"Energy & Protein"','"anthro":"Anthropometry"','"products":"Product Reference"']
+ pos=[nav.index(v) for v in order]
+ assert pos==sorted(pos)
+def test_rc28_mobile_navigation_has_touch_target_rules():
+ css=(ROOT/"www"/"styles.css").read_text()
+ assert "RC2.8 adaptive information architecture" in css
+ assert "max-width:min(88vw,360px)" in css
+ assert "min-height:50px" in css
+ for label in ("GUIDANCE","CLINICAL CONDITIONS","NUTRITION SUPPORT","CALCULATORS","PRODUCTS"):
+  assert label in css
