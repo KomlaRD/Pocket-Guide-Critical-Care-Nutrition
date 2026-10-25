@@ -38,6 +38,7 @@ from core.calculators import (
 
 ui.page_opts(title="Pocket Guide | Critical Care Nutrition", fillable=False)
 ui.include_css(Path(__file__).parent / "www" / "styles.css")
+ui.include_js(Path(__file__).parent / "www" / "navigation.js")
 
 PRODUCT_DB = ProductDatabase(Path(__file__).parent / "data" / "products")
 NUTRIENT_UNITS = {
@@ -188,6 +189,15 @@ with ui.sidebar(open="desktop"):
     )
 
 
+ui.div(
+    ui.a("Home", href="#home", **{"data-page":"home"}, class_="mobile-nav-item"),
+    ui.a("Guidance", href="#find", **{"data-page":"find"}, class_="mobile-nav-item"),
+    ui.a("Nutrition", href="#support", **{"data-page":"support"}, class_="mobile-nav-item"),
+    ui.a("Tools", href="#toolkit", **{"data-page":"toolkit"}, class_="mobile-nav-item"),
+    ui.tags.button("All sections ☰", type="button", id="mobile-nav-menu", class_="mobile-nav-item mobile-nav-menu"),
+    class_="mobile-bottom-nav", aria_label="Quick navigation",
+)
+
 with ui.panel_conditional("input.page === 'home'"):
     ui.div(
         ui.div("BEDSIDE CLINICAL TOOLKIT", class_="hero-eyebrow"),
@@ -196,14 +206,55 @@ with ui.panel_conditional("input.page === 'home'"):
         ui.div(ui.span("Evidence-informed", class_="hero-chip"), ui.span("Clinician-confirmed", class_="hero-chip"), class_="hero-chips"),
         class_="hero",
     )
-    ui.h3("Bedside tools", class_="section-heading")
+    ui.h3("Explore the pocket guide", class_="section-heading"),
+    ui.p("Select any card to open its clinical section. All tools and features are listed below.", class_="small-note"),
+    ui.h4('Start here', class_="home-group-heading"),
     ui.div(
-        ui.div(ui.div("01", class_="feature-number"), ui.h4("Energy & Protein"), ui.p("Weight-based targets and Weir energy expenditure."), class_="feature-card"),
-        ui.div(ui.div("02", class_="feature-number"), ui.h4("Nutrition Support"), ui.p("EN rate, propofol calories and glucose infusion rate."), class_="feature-card"),
-        ui.div(ui.div("03", class_="feature-number"), ui.h4("Metabolic"), ui.p("Nitrogen balance and non-protein calorie:nitrogen ratio."), class_="feature-card"),
-        ui.div(ui.div("04", class_="feature-number"), ui.h4("Refeeding & Micronutrients"), ui.p("Rapid access to ASPEN refeeding and ESPEN micronutrient guidance."), class_="feature-card"),
-        class_="card-grid",
-    )
+        ui.a(ui.h4('Find Guidance'), href="#find", **{"data-page":"find"}, class_="feature-card feature-link"),
+        ui.a(ui.h4('Quick Reference'), href="#reference", **{"data-page":"reference"}, class_="feature-card feature-link"),
+        ui.a(ui.h4('Pediatric Critical Care'), href="#pediatric", **{"data-page":"pediatric"}, class_="feature-card feature-link"),
+        class_="card-grid home-directory-grid",
+    ),
+    ui.h4('Guidance & safety', class_="home-group-heading"),
+    ui.div(
+        ui.a(ui.h4('Critical Care Guidelines'), href="#guidelines", **{"data-page":"guidelines"}, class_="feature-card feature-link"),
+        ui.a(ui.h4('Refeeding Syndrome'), href="#refeeding", **{"data-page":"refeeding"}, class_="feature-card feature-link"),
+        ui.a(ui.h4('Micronutrients'), href="#micronutrients", **{"data-page":"micronutrients"}, class_="feature-card feature-link"),
+        ui.a(ui.h4('Safety'), href="#safety", **{"data-page":"safety"}, class_="feature-card feature-link"),
+        ui.a(ui.h4('Monitoring Checklist'), href="#monitoring_check", **{"data-page":"monitoring_check"}, class_="feature-card feature-link"),
+        class_="card-grid home-directory-grid",
+    ),
+    ui.h4('Clinical conditions', class_="home-group-heading"),
+    ui.div(
+        ui.a(ui.h4('Renal & KRT'), href="#renal", **{"data-page":"renal"}, class_="feature-card feature-link"),
+        ui.a(ui.h4('Obesity in ICU'), href="#obesity", **{"data-page":"obesity"}, class_="feature-card feature-link"),
+        ui.a(ui.h4('Acute Pancreatitis'), href="#pancreatitis", **{"data-page":"pancreatitis"}, class_="feature-card feature-link"),
+        ui.a(ui.h4('Liver Disease'), href="#liver", **{"data-page":"liver"}, class_="feature-card feature-link"),
+        ui.a(ui.h4('GI Losses & Intestinal Failure'), href="#gi_losses", **{"data-page":"gi_losses"}, class_="feature-card feature-link"),
+        ui.a(ui.h4('Trauma, Burns & Sepsis'), href="#special_icu", **{"data-page":"special_icu"}, class_="feature-card feature-link"),
+        class_="card-grid home-directory-grid",
+    ),
+    ui.h4('Nutrition support', class_="home-group-heading"),
+    ui.div(
+        ui.a(ui.h4('Energy & Protein'), href="#requirements", **{"data-page":"requirements"}, class_="feature-card feature-link"),
+        ui.a(ui.h4('Nutrition Support'), href="#support", **{"data-page":"support"}, class_="feature-card feature-link"),
+        ui.a(ui.h4('Nutrition Adequacy'), href="#adequacy", **{"data-page":"adequacy"}, class_="feature-card feature-link"),
+        ui.a(ui.h4('Nutrition Delivery'), href="#delivery", **{"data-page":"delivery"}, class_="feature-card feature-link"),
+        class_="card-grid home-directory-grid",
+    ),
+    ui.h4('Calculators', class_="home-group-heading"),
+    ui.div(
+        ui.a(ui.h4('Anthropometry'), href="#anthro", **{"data-page":"anthro"}, class_="feature-card feature-link"),
+        ui.a(ui.h4('Calculators & Conversions'), href="#toolkit", **{"data-page":"toolkit"}, class_="feature-card feature-link"),
+        ui.a(ui.h4('Metabolic Calculators'), href="#metabolic", **{"data-page":"metabolic"}, class_="feature-card feature-link"),
+        class_="card-grid home-directory-grid",
+    ),
+    ui.h4('Products', class_="home-group-heading"),
+    ui.div(
+        ui.a(ui.h4('Product Reference'), href="#products", **{"data-page":"products"}, class_="feature-card feature-link"),
+        ui.a(ui.h4('Compare Formulas'), href="#compare_products", **{"data-page":"compare_products"}, class_="feature-card feature-link"),
+        class_="card-grid home-directory-grid",
+    ),
     ui.div(
         ui.strong("Clinical use & limitations"),
         ui.p("This pocket guide is an evidence-informed clinical reference and decision-support tool. It does not replace individualized nutrition assessment, professional clinical judgment, current product labeling, institutional policies, or locally applicable protocols."),
@@ -214,7 +265,7 @@ with ui.panel_conditional("input.page === 'home'"):
     )
     ui.div(
         ui.h4("Developer"),
-        ui.p("Eric Anku — Registered Dietitian and developer of Pocket Guide Critical Care."),
+        ui.p("Eric Anku - Registered Dietitian and developer of Pocket Guide Critical Care."),
         ui.a("GitHub · KomlaRD", href="https://github.com/KomlaRD", target="_blank", rel="noopener noreferrer"),
         class_="developer-card",
     )

@@ -106,3 +106,7 @@ def test_rc28_mobile_navigation_has_touch_target_rules():
 def test_anthropredictor_uses_current_public_link():
  assert "https://KomlaRD-anthro-predictor.share.connect.posit.cloud" in APP
  assert "01958b58-74ab-f024-a783-72fb6c17943b" not in APP
+
+def test_rc31_home_has_complete_directory():
+    for key in ("find","reference","pediatric","guidelines","refeeding","micronutrients","safety","monitoring_check","renal","obesity","pancreatitis","liver","gi_losses","special_icu","requirements","support","adequacy","delivery","anthro","toolkit","metabolic","products","compare_products"):
+        assert f'href="#{key}"' in APP
