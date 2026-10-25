@@ -1,8 +1,3 @@
-# RC3.8 — Mobile sidebar back-button overlap
+# RC3.9
 
-- Removed the duplicate custom “Back to guide” button.
-- Retained the native bslib mobile sidebar back/close control.
-- Reserved space above the Pocket Guide brand so the native control does not cover it.
-- No clinical content or calculator changes.
-
-Live mobile browser verification is still required.
+Mobile menu close control: persistent sticky Back to guide button inside drawer; native bslib toggle hidden visually on mobile to prevent overlapping or disappearing buttons. RC3.8 clinical content unchanged.

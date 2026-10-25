@@ -429,3 +429,36 @@ aside.sidebar .btn { width: 100%; white-space: normal; text-align: center; }
     padding-top: 8px !important;
   }
 }
+
+/* RC3.9: one reliable close control inside the mobile drawer.
+   The native bslib toggle remains functional for scripting but is visually
+   suppressed on mobile, avoiding duplicate/disappearing controls. */
+.pg-mobile-close-menu{display:none}
+@media(max-width:767px){
+  .bslib-sidebar-toggle, .sidebar-toggle, button[aria-controls*="sidebar"]{
+    visibility:hidden!important;
+    pointer-events:none!important;
+  }
+  .sidebar .pg-mobile-close-menu,
+  aside.sidebar .pg-mobile-close-menu{
+    display:block!important;
+    position:sticky;
+    top:0;
+    z-index:20;
+    width:100%;
+    min-height:48px;
+    text-align:left;
+    padding:10px 14px;
+    background:#fff;
+    color:#274a85;
+    border:0;
+    border-bottom:1px solid #dce3ee;
+    font-size:.95rem;font-weight:700;font-family:inherit;
+    cursor:pointer;
+  }
+  .bslib-sidebar-layout > .sidebar .brand-lockup,
+  aside.sidebar .brand-lockup{
+    margin-top:0!important;
+    padding-top:10px!important;
+  }
+}
