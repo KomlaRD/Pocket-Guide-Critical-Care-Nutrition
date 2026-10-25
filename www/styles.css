@@ -349,3 +349,60 @@ aside.sidebar .btn { width: 100%; white-space: normal; text-align: center; }
     min-width: 0;
   }
 }
+
+/* RC3.4: Keep the mobile off-canvas navigation out of document flow.
+   The earlier global content-first rule set the sidebar layout to auto height;
+   on narrow screens an expanded 24-item sidebar could therefore enlarge the
+   page and leave a long empty region beside/below the drawer. */
+@media (max-width: 767px) {
+  .bslib-sidebar-layout > .sidebar,
+  .bslib-sidebar-layout > aside.sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    overscroll-behavior: contain;
+    z-index: 1045;
+  }
+  .bslib-sidebar-layout > .main,
+  .bslib-sidebar-layout > main {
+    min-height: 0 !important;
+    height: auto !important;
+  }
+  .bslib-sidebar-layout {
+    min-height: 0 !important;
+    height: auto !important;
+  }
+}
+
+/* RC3.5: viewport-bounded navigation at every screen width. The document
+   remains the only scroll surface for clinical content; navigation scrolls
+   independently and never stretches to the height of the document. */
+@media (min-width: 768px) {
+  .bslib-sidebar-layout > .sidebar,
+  .bslib-sidebar-layout > aside.sidebar {
+    position: sticky !important;
+    top: 0 !important;
+    align-self: start !important;
+    box-sizing: border-box;
+    height: 100vh !important;
+    height: 100dvh !important;
+    min-height: 0 !important;
+    max-height: 100vh !important;
+    max-height: 100dvh !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    overscroll-behavior-y: contain;
+  }
+}
+@media (max-width: 767px) {
+  .bslib-sidebar-layout > .sidebar,
+  .bslib-sidebar-layout > aside.sidebar {
+    min-height: 0 !important;
+    max-height: 100vh !important;
+    max-height: 100dvh !important;
+  }
+}

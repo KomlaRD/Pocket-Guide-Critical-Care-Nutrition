@@ -455,3 +455,8 @@ GitHub: https://github.com/KomlaRD
 
 ## RC2.8 — Adaptive Navigation & Information Architecture
 Navigation is ordered around clinicians' conceptual tasks: quick access, guidance, clinical conditions, nutrition support, calculators, and products. Pediatric Critical Care remains a prominent distinct pathway. Narrow screens use larger touch targets and a compact sidebar surface; clinical content and calculation logic are unchanged.
+
+
+### RC3.5 — Viewport-bounded sidebar
+
+Desktop navigation now stays within the visible viewport and scrolls independently of the clinical content. Mobile drawer height remains viewport-bounded. No clinical calculation or product data changes.

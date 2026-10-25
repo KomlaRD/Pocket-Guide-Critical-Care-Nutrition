@@ -23,6 +23,7 @@
     toggle.click();
     // Run after bslib updates the drawer state/layout.
     requestAnimationFrame(resetMenuScroll);
+    requestAnimationFrame(function () { requestAnimationFrame(resetMenuScroll); });
   }
   function navigate(page) {
     const radio = document.querySelector('input[name="page"][value="' + page + '"]');
