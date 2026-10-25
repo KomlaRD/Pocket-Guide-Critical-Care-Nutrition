@@ -419,3 +419,32 @@ aside.sidebar .btn { width: 100%; white-space: normal; text-align: center; }
   .bslib-sidebar-layout > .sidebar .brand-mark,
   aside.sidebar .brand-mark { flex-shrink: 0; }
 }
+
+/* RC3.7: explicit, always-visible mobile drawer close control. This avoids
+   relying on the bslib toggle remaining visible while the drawer is open. */
+.pg-mobile-close-menu { display:none; }
+@media (max-width: 767px) {
+  .bslib-sidebar-layout > .sidebar .pg-mobile-close-menu,
+  aside.sidebar .pg-mobile-close-menu {
+    display:block !important;
+    position:sticky;
+    top:0;
+    z-index:30;
+    width:100%;
+    min-height:48px;
+    padding:10px 14px;
+    text-align:left;
+    font:inherit;
+    font-weight:700;
+    color:#234b87;
+    background:#fff;
+    border:0;
+    border-bottom:1px solid #d8dfeb;
+    cursor:pointer;
+  }
+  .bslib-sidebar-layout > .sidebar .brand-lockup,
+  aside.sidebar .brand-lockup {
+    margin-top:0 !important;
+    padding-top:10px !important;
+  }
+}

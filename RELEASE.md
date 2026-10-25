@@ -32,3 +32,9 @@ A live multi-browser/mobile-device Shiny acceptance test is not included in the 
 - Reserve a dedicated 58px row above the mobile sidebar brand for the native back/close control.
 - Keep the Pocket Guide mark and title unobstructed; desktop styles unchanged.
 - Live mobile-browser confirmation remains required.
+
+
+## RC3.7 — Persistent mobile menu back control
+- Added an explicit sticky Back to guide button inside the mobile drawer, independent of Shiny's native toggle visibility.
+- Removed the prior 58px brand top spacer; logo follows the dedicated close row.
+- Desktop sidebar remains unchanged.
