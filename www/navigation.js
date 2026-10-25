@@ -64,10 +64,6 @@
     if (event.target.closest('#mobile-nav-menu')) {
       openMobileMenu();
     }
-    if (event.target.closest('#pg-mobile-close-menu')) {
-      const toggle = menuToggle();
-      if (toggle) toggle.click();
-    }
   });
   document.addEventListener('change', function (event) {
     if (event.target.matches('input[name="page"]')) {

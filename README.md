@@ -460,3 +460,7 @@ Navigation is ordered around clinicians' conceptual tasks: quick access, guidanc
 ### RC3.5 — Viewport-bounded sidebar
 
 Desktop navigation now stays within the visible viewport and scrolls independently of the clinical content. Mobile drawer height remains viewport-bounded. No clinical calculation or product data changes.
+
+
+### RC3.8 mobile menu correction
+Uses the native sidebar close control only; removes the duplicate custom back button and reserves space above the logo.

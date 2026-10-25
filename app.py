@@ -144,7 +144,6 @@ def result_card(label, value, unit, note=""):
 
 
 with ui.sidebar(open="desktop"):
-    ui.tags.button("← Back to guide", type="button", id="pg-mobile-close-menu", class_="pg-mobile-close-menu", aria_label="Close navigation menu and return to guide")
     ui.div(
         ui.div("PG", class_="brand-mark", aria_label="Pocket Guide"),
         ui.div(ui.h4("Pocket Guide"), ui.p("CRITICAL CARE NUTRITION", class_="brand-subtitle")),
@@ -399,7 +398,7 @@ with ui.panel_conditional("input.page === 'find'"):
         ui.tags.ul(
             ui.tags.li("No patient identifiers, records, search history or completion status are stored."),
             ui.tags.li("Calculator inputs are transient bedside values, not a patient record."),
-            ui.tags.li("Guideline values support—not replace—clinical judgment and local policy."),
+            ui.tags.li("Guideline values support, not replace clinical judgment and local policy."),
             ui.tags.li("Weight descriptors, units and guideline source must remain explicit when they affect interpretation."),
         )
 
