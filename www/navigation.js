@@ -13,6 +13,15 @@
       if (expanded) toggle.click();
     }
   }
+  function labelMenuToggle() {
+    const toggle=document.querySelector('.bslib-sidebar-toggle, button[aria-controls*="sidebar"], .sidebar-toggle');
+    if (toggle) {
+      toggle.setAttribute('aria-label', 'Open or close navigation menu');
+      toggle.setAttribute('title', 'Menu — browse all sections');
+      toggle.classList.add('pg-menu-toggle');
+    }
+  }
+  document.addEventListener('DOMContentLoaded', labelMenuToggle);
   document.addEventListener('click', function (event) {
     const link = event.target.closest('[data-page]');
     if (link) { event.preventDefault(); navigate(link.dataset.page); return; }

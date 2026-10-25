@@ -110,3 +110,10 @@ def test_anthropredictor_uses_current_public_link():
 def test_rc31_home_has_complete_directory():
     for key in ("find","reference","pediatric","guidelines","refeeding","micronutrients","safety","monitoring_check","renal","obesity","pancreatitis","liver","gi_losses","special_icu","requirements","support","adequacy","delivery","anthro","toolkit","metabolic","products","compare_products"):
         assert f'href="#{key}"' in APP
+
+def test_rc32_mobile_menu_and_content_clearance():
+    css=(ROOT/"www"/"styles.css").read_text()
+    assert "RC3.2 mobile navigation refinements" in css
+    assert "108px + env(safe-area-inset-bottom" in css
+    assert 'aria_label="Open all sections menu"' in APP
+    assert '"☰ Menu"' in APP

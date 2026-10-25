@@ -320,3 +320,12 @@ aside.sidebar .btn { width: 100%; white-space: normal; text-align: center; }
 
 /* RC3.1 landing directory */
 .home-group-heading{margin:1.5rem 0 .7rem;font-size:1.12rem;font-weight:750}.home-directory-grid{margin-bottom:1.15rem}.home-directory-grid .feature-card{display:flex;align-items:center;min-height:95px;text-decoration:none}.home-directory-grid .feature-card:focus-visible{outline:3px solid #385b9a;outline-offset:3px}@media(max-width:767px){.home-directory-grid{grid-template-columns:1fr!important}.home-directory-grid .feature-card{min-height:64px;padding:1rem}}
+
+/* RC3.2 mobile navigation refinements */
+@media(max-width:767px){
+ body{padding-bottom:calc(108px + env(safe-area-inset-bottom,0px))!important}
+ .bslib-sidebar-toggle,.sidebar-toggle,button[aria-controls*="sidebar"]{min-width:48px!important;min-height:48px!important;border:1px solid #b8c5d8!important;border-radius:12px!important;background:#fff!important;box-shadow:0 2px 7px #162b4c20!important}
+ .mobile-bottom-nav{box-sizing:border-box;min-height:64px;align-items:stretch}
+ .mobile-nav-menu{font-size:.88rem!important;font-weight:800!important;border:1px solid #b8c5d8!important;background:#eaf0ff!important}
+ .bslib-sidebar-layout>.main,.bslib-sidebar-layout>main{padding-bottom:1.5rem!important}
+}

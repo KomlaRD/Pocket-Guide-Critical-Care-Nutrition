@@ -194,7 +194,7 @@ ui.div(
     ui.a("Guidance", href="#find", **{"data-page":"find"}, class_="mobile-nav-item"),
     ui.a("Nutrition", href="#support", **{"data-page":"support"}, class_="mobile-nav-item"),
     ui.a("Tools", href="#toolkit", **{"data-page":"toolkit"}, class_="mobile-nav-item"),
-    ui.tags.button("All sections ☰", type="button", id="mobile-nav-menu", class_="mobile-nav-item mobile-nav-menu"),
+    ui.tags.button("☰ Menu", type="button", id="mobile-nav-menu", class_="mobile-nav-item mobile-nav-menu", aria_label="Open all sections menu"),
     class_="mobile-bottom-nav", aria_label="Quick navigation",
 )
 
