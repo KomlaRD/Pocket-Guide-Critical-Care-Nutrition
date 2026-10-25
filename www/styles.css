@@ -329,3 +329,23 @@ aside.sidebar .btn { width: 100%; white-space: normal; text-align: center; }
  .mobile-nav-menu{font-size:.88rem!important;font-weight:800!important;border:1px solid #b8c5d8!important;background:#eaf0ff!important}
  .bslib-sidebar-layout>.main,.bslib-sidebar-layout>main{padding-bottom:1.5rem!important}
 }
+
+/* RC3.3: mobile drawer scrolling is independent of the underlying document.
+   Leave bslib's native off-canvas positioning/visibility intact. */
+@media (max-width: 767px) {
+  .bslib-sidebar-layout > .sidebar, aside.sidebar {
+    box-sizing: border-box;
+    width: min(88vw, 360px) !important;
+    max-width: min(88vw, 360px) !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+  .bslib-sidebar-layout > .sidebar .shiny-input-radiogroup,
+  .bslib-sidebar-layout > .sidebar .shiny-options-group {
+    min-width: 0;
+  }
+}

@@ -19,3 +19,10 @@
 - Distribution ZIP passes integrity testing.
 
 A live multi-browser/mobile-device Shiny acceptance test is not included in the automated RC1 verification and should be performed in the deployment environment before a production/public launch.
+
+
+## RC3.3 — Mobile navigation scroll correction
+- Based on RC3.2; reset mobile sidebar scroll to its top whenever the bottom Menu control opens it.
+- Retain native Shiny/bslib drawer positioning and desktop layout; constrain mobile drawer height and independently scroll its contents.
+- No changes to clinical calculations, guidelines, or product data.
+- Requires real-device verification after deployment; static checks do not establish browser behavior.
