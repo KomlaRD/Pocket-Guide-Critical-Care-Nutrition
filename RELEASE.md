@@ -26,3 +26,9 @@ A live multi-browser/mobile-device Shiny acceptance test is not included in the 
 - Retain native Shiny/bslib drawer positioning and desktop layout; constrain mobile drawer height and independently scroll its contents.
 - No changes to clinical calculations, guidelines, or product data.
 - Requires real-device verification after deployment; static checks do not establish browser behavior.
+
+
+## RC3.6 mobile header clearance
+- Reserve a dedicated 58px row above the mobile sidebar brand for the native back/close control.
+- Keep the Pocket Guide mark and title unobstructed; desktop styles unchanged.
+- Live mobile-browser confirmation remains required.

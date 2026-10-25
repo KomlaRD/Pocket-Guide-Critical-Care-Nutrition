@@ -406,3 +406,16 @@ aside.sidebar .btn { width: 100%; white-space: normal; text-align: center; }
     max-height: 100dvh !important;
   }
 }
+
+/* RC3.6: reserve a dedicated first row for the native mobile drawer back/close
+   control. It must not overlap the Pocket Guide mark or title. */
+@media (max-width: 767px) {
+  .bslib-sidebar-layout > .sidebar .brand-lockup,
+  aside.sidebar .brand-lockup {
+    margin-top: 58px !important;
+    padding-top: 8px !important;
+    min-height: 66px;
+  }
+  .bslib-sidebar-layout > .sidebar .brand-mark,
+  aside.sidebar .brand-mark { flex-shrink: 0; }
+}
